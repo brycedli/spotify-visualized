@@ -1,0 +1,233 @@
+
+<p>Contact page for the Visual Studio Code Django tutorial.</p>
+{% load static %}
+<!-- <script src="{% static '/hello/rcube.js' %}"></script> -->
+<!-- <script src="{% static '/hello/three.js' %}"></script> -->
+<!-- <script src="{% static '/hello/OrbitControls.js' %}"></script> -->
+
+<header> 
+    <figure id="container" title="fuck u">
+        
+    </figure>
+</header>
+
+
+<script type= "module">
+
+    import { OrbitControls } from "{% static '/hello/OrbitControls.js' %}";
+    // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+    import * as THREE from "https://threejs.org/build/three.module.js"   ;
+
+    function login(callback) {
+        var CLIENT_ID = '22ca38327ff8436cbf97e5979d2eb063';
+        var REDIRECT_URI = 'http://127.0.0.1:8000/spotproxy/';
+        function getLoginURL(scopes) {
+            return 'https://accounts.spotify.com/authorize?client_id=' + CLIENT_ID +
+              '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
+              '&scope=' + encodeURIComponent(scopes.join(' ')) +
+              '&response_type=token';
+        }
+        
+        var url = getLoginURL([
+            'playlist-read-private'
+        ]);
+        
+        var width = 450,
+            height = 730,
+            left = (screen.width / 2) - (width / 2),
+            top = (screen.height / 2) - (height / 2);
+    
+        window.addEventListener("message", function(event) {
+            var hash = JSON.parse(event.data);
+            if (hash.type == 'access_token') {
+                callback(hash.access_token);
+            }
+        }, false);
+        
+        var w = window.open(url,
+                            'Spotify',
+                            'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left
+                           );
+        
+    }
+
+    var totallist = [];
+    var poplist = [];
+    function getPlaylistData(accessToken, url) {
+        //ideally return JSON
+        fetch(url, {
+  			method: 'GET', // or 'PUT'
+  			headers: {
+    				'Authorization': 'Bearer ' + accessToken,
+  			},
+  					
+		}).then((response) => {
+            return response.json();
+        })
+        .then ((data) => {
+            data.items.forEach(function(item, index, array){
+                totallist.push(item.track.id);
+                poplist.push(item.track.popularity);
+                // console.log(item.track.id);
+            })
+            console.log(totallist.length);
+
+            if (data.next){
+                getPlaylistData(accessToken, data.next);
+            }else{
+                renderData(accessToken, totallist);
+                // console.log(totallist[0]);
+            }
+
+        });
+
+      
+    }
+
+    function analyzeTrack(accessToken, arr){
+        //GET https://api.spotify.com/v1/audio-analysis/{id}
+
+        var fullURL = 'https://api.spotify.com/v1/audio-features?ids=' + arr.join(",");
+        // console.log(arr.join(","));
+        return fetch (fullURL, {
+            method: 'GET',
+
+            headers: {
+    				'Authorization': 'Bearer ' + accessToken,
+              },
+              
+        });
+
+    }
+
+    const playlistURL = '2BkGgQfqjpC2yHbBq9a2NB';
+    login(function(accessToken) {
+        var fullURL = 'https://api.spotify.com/v1/playlists/' + playlistURL + '/tracks';
+
+        getPlaylistData(accessToken, fullURL);
+
+                
+    }); 
+
+
+
+    function renderData (accessToken, inputData) {
+        // var data = JSON.parse(response.json());
+        //console.log(totallist);
+
+        var container = document.getElementById("container");
+
+
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        
+
+        // var geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+        // var material = new THREE.MeshBasicMaterial({
+        //     color: 0x00ff00
+        // });
+        // var cube = new THREE.Mesh(geometry, material);
+
+        //var instanceMesh = InstancedMesh(geometry, material, inputData.length);
+        var count = 0;
+        var features = [];
+        console.log("poplist is length " + poplist.length);
+        while (count < inputData.length){
+            var popIndex = 0;
+
+            analyzeTrack(accessToken, inputData.slice(count, count + 50)).then((response) => {
+                return response.json();
+            }).then ((data) => {
+                // console.log(data.audio_features);
+                if (data){
+                    data.audio_features.forEach(function(item, index, array){
+                        features.push(item);
+
+                        console.log(poplist[popIndex]);
+                        var geometry = new THREE.SphereGeometry(poplist[popIndex]/30, 10, 10 );
+                        var col = new THREE.Color(item.energy, item.valence, item.acousticness);
+                        var material = new THREE.MeshBasicMaterial( { color: col } );
+                        var mesh = new THREE.Mesh( geometry, material );
+                        mesh.position.x = 100 * item.energy;
+                        mesh.position.y = 100 * item.valence;
+                        mesh.position.z = 100 * item.acousticness;
+                        scene.add(mesh);
+                        popIndex++;
+
+                    })
+                }else{
+                    console.log("no data");
+                }
+                
+
+            });
+            count += 50;
+            
+        }
+        console.log(features);
+
+        features.forEach(function(item, index, array){
+            console.log(item);
+            // var geometry = new THREE.CubeGeometry(0.1, 0.1, 0.1 );
+            // var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+            // var mesh = new THREE.Mesh( geometry, material );
+            // mesh.position.x = data.energy;
+            // mesh.position.y = data.valence;
+            // mesh.position.z = data.acousticness;
+            // scene.add(mesh);
+        })
+        // console.log(audio_features);
+        // inputData.forEach(function(item, index, array){
+        //     analyzeTrack(accessToken, item.track.id).then((response) => {
+        //         return response.json();
+        //     }).then ((data) => {
+                
+        //         var geometry = new THREE.CubeGeometry(0.1, 0.1, 0.1 );
+        //         var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        //         var mesh = new THREE.Mesh( geometry, material );
+        //         mesh.position.x = data.energy;
+        //         mesh.position.y = data.valence;
+        //         mesh.position.z = data.acousticness;
+        //         scene.add(mesh);
+        //     });
+        // })        
+        camera.position.z = 500;
+        var boxMesh =  new THREE.Mesh(new THREE.BoxBufferGeometry(100,100,100));
+        boxMesh.position.x = 50;
+        boxMesh.position.y = 50;
+        boxMesh.position.z = 50;
+        var helper = new THREE.BoxHelper(boxMesh);
+        helper.material.color.setHex(0xFFFFFF)
+        helper.material.blending = THREE.AdditiveBlending;
+        helper.material.transparent = true;
+
+
+        scene.add (helper);
+        var animate = function() {
+            requestAnimationFrame(animate);
+
+
+            renderer.render(scene, camera);
+        };
+
+        animate();
+
+        var controls = new OrbitControls( camera, renderer.domElement );
+        controls.target.set( 50, 50, 50 );
+        controls.update();
+
+        // window.addEventListener( 'resize', onWindowResize, false );
+
+    }
+
+    
+
+    
+                
+
+</script>
