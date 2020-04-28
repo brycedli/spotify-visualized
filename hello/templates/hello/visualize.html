@@ -292,8 +292,8 @@
 
             console.log(particles);
             var selectCounter = 0;
-            const nSpecial = 20;
-            const increment = (particles.size / nSpecial);
+            const nSpecial = 10;
+            const increment = Math.round(particles.size / nSpecial);
             particles.forEach(function (value, key, map) {
                 // var geometry = new THREE.SphereGeometry(poplist[popIndex].track.popularity/30, 10, 10 );
 
@@ -315,6 +315,7 @@
                 if (selectCounter % increment == 0){
                     var specialViewObj = new SpecialView();
                     var newDiv = document.createElement("div");
+
                     newDiv.style.position = 'absolute';
                     newDiv.className = "thumbnail";
                     container.appendChild(newDiv);
@@ -322,6 +323,9 @@
                     specialViewObj.addElement(newDiv);
                     let imgurl = value.getTrackData().album.images[2].url;
                     specialViewObj.addTexture(imgurl);
+                    var titleText = document.createElement("p");
+                    titleText.textContent = value.getTrackData().name;
+                    newDiv.appendChild(titleText);
                     specialViewObj.addVector(mesh.position);
                     specialViews.push(specialViewObj);
                 }

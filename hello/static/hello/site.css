@@ -149,8 +149,8 @@ body {background-color: black;
 
 .thumbnail {
     width: 64px;
-    height: 64px;
-
+    /* height: 64px; */
+    color: white;
     -webkit-user-select: none;
 }
 
@@ -160,5 +160,10 @@ body {background-color: black;
     /* clip: rect(0px,64px,64px,0px); */
     max-height: 64px;
     min-width: 64px;
+
+}
+.thumbnail p {
+    color: white;
+    font-family: 'Helvetica', sans-serif;
 
 }
