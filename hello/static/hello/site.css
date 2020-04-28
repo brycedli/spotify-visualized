@@ -38,3 +38,127 @@ input[name=message] {
     text-align: left;
     padding-right: 15px;
 }
+
+#scene {
+    /* height: 100%; */
+    /* width: 100%; */
+
+    outline-style:none;
+    /* margin: 0; */
+    /* display: table-cell; */
+
+}
+
+body {background-color: black;
+    /* height: 100%; */
+}
+
+#titletext {
+    font-family: 'Helvetica', sans-serif;
+    font-size: 5em;
+    color: white;
+
+}
+
+.leftcell {
+    width: 65%;
+    height: 100%;
+    float: left;
+    /* display: table-cell; */
+    /* -webkit-tap-highlight-color: transparent; */
+
+}
+
+.rightcell {
+    width: 35%;
+    height: 100%;
+    float: right;
+    /* display: table-cell; */
+    background-color: #181818;
+    
+
+}
+
+.row {
+    width: 100%;
+    height: 100%;
+    display: table;
+}
+
+.abouttext {
+    /* display: table-cell; */
+    /* line-height: 120%; */
+    font-family: 'Helvetica', sans-serif;
+    font-size: 12pt;
+    line-height: 16pt;
+
+    margin: 50px;
+    margin-top: 25px;
+
+    color: white;
+}
+
+.titletext {
+    font-family: 'Helvetica', sans-serif;
+    font-size: 52pt;
+    margin: 50px;
+    margin-top: 25px;
+
+    margin-bottom: 0;
+    color: white;
+    font-weight: bold;
+}
+
+.btnprimary {
+    margin-left: 50px;
+    margin-top: 50px;
+    background-color: #1DB954;
+    border: 2px solid #1DB954;
+    color: white;
+    border-radius: 500px;
+    width: 200px;
+    height: 30px;
+    /* padding: 50px 50px; */
+    font-weight: bold;
+}
+
+.btnprimary:hover {
+    background-color: #1ED760; /* Green */
+    border: 2px solid #1ED760;
+
+    color: white;
+  }
+
+.profile {
+    margin-left: 50px;
+    margin-top: 50px;
+    border-radius: 50%;
+    /* height: 20%;
+    width: 20%; */
+    display: none;
+
+}
+
+.loadingtext {
+    color: white;
+    margin-left: 50px;
+    display: none;
+    font-size: 8pt;
+    font-family: "Lucidia Console", Monaco, monospace;
+}
+
+.thumbnail {
+    width: 64px;
+    height: 64px;
+
+    -webkit-user-select: none;
+}
+
+.thumbnail img {
+    border-radius: 50%;
+    /* height:64px; */
+    /* clip: rect(0px,64px,64px,0px); */
+    max-height: 64px;
+    min-width: 64px;
+
+}

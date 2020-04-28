@@ -1,0 +1,646 @@
+{% load static %}
+<!-- <script src="{% static '/hello/rcube.js' %}"></script> -->
+<!-- <script src="{% static '/hello/three.js' %}"></script> -->
+<!-- <script src="{% static '/hello/OrbitControls.js' %}"></script> -->
+
+<head>
+    <link rel="stylesheet" href="{% static '/hello/site.css' %}">
+    <script type="module">
+        const canvasToWindow = 0.65;
+        var loadingText = document.getElementById("loadingbar");
+        var nameText = document.getElementById('title-text');
+        const playlistURL = '2BkGgQfqjpC2yHbBq9a2NB';
+        var loginButton = document.getElementById('btn-login');
+        var profile = document.getElementById('profilepic');
+        loginButton.addEventListener("click", function () {
+            // console.log(document);
+
+            login(function (accessToken) {
+                getUserPlaylists(accessToken).then((response) => {
+                    return response.json();
+                })
+                    .then((data) => {
+
+                        var itemCount = 0;
+
+                        data.items.forEach(function (item, index, array) {
+                            // console.log(item);
+                            var fullURL = 'https://api.spotify.com/v1/playlists/' + item.id + '/tracks';
+                            getPlaylistData(accessToken, fullURL, function (){
+                                itemCount++;
+                                if (itemCount == data.items.length){
+                                    console.log("getfeatures called, should be only once", itemCount, data.items.length);
+                                    loadingText.textContent = "fetching playlist" + itemCount;
+
+                                    getFeatures(accessToken);
+                                }
+                            });
+                        })
+                        if (data.next) {
+                            getUserPlaylists(accessToken, data.next);
+                        }
+                        loginButton.style.display = 'none';
+
+                        fetch('https://api.spotify.com/v1/me', {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': 'Bearer ' + accessToken,
+                            }
+                        }).then((response) => {
+                            return response.json();
+                        }).then((data => {
+                            nameText.textContent = data.display_name + "'s spotify soundscape";
+                            profile.src = data.images[0].url;
+                            profile.style.display = 'inline-block';
+                        }))
+                    })
+                // getPlaylistData(accessToken, fullURL);
+
+
+            });
+
+
+
+            
+        });
+        function callBackFeatures() {
+            
+        }
+        import { OrbitControls } from "{% static '/hello/OrbitControls.js' %}";
+        // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+        import * as THREE from "https://threejs.org/build/three.module.js";
+
+        function login(callback) {
+            var CLIENT_ID = '22ca38327ff8436cbf97e5979d2eb063';
+            var REDIRECT_URI = 'http://127.0.0.1:8000/spotproxy/';
+            function getLoginURL(scopes) {
+                return 'https://accounts.spotify.com/authorize?client_id=' + CLIENT_ID +
+                    '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
+                    '&scope=' + encodeURIComponent(scopes.join(' ')) +
+                    '&response_type=token';
+            }
+
+            var url = getLoginURL([
+                'playlist-read-private'
+            ]);
+
+            var width = 450,
+                height = 730,
+                left = (screen.width / 2) - (width / 2),
+                top = (screen.height / 2) - (height / 2);
+
+            window.addEventListener("message", function (event) {
+                var hash = JSON.parse(event.data);
+                if (hash.type == 'access_token') {
+                    callback(hash.access_token);
+                }
+            }, false);
+
+            var w = window.open(url,
+                'Spotify',
+                'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left
+            );
+
+        }
+
+        function getUserPlaylists(accessToken) {
+            //fetch 50 at time
+            var fullURL = "https://api.spotify.com/v1/me/playlists";
+
+            return fetch(fullURL, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                }
+            })
+
+        }
+        var particles = new Map();
+        function getPlaylistData(accessToken, url, callback) {
+            //ideally return JSON
+            fetch(url, {
+                method: 'GET', // or 'PUT'
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                },
+
+            }).then((response) => {
+                return response.json();
+            })
+                .then((data) => {
+                    data.items.forEach(function (item, index, array) {
+                        // totallist.push(item.track.id);
+                        // poplist.push(item);
+                        var particle = new Particle();
+                        particle.addTrackData(item.track);
+                        // particle.id = item.track.id;
+
+                        // particles.push(particle);
+                        if (!particles.get(item.track.id)) {
+                            particles.set(item.track.id, particle);
+
+                        } else {
+                            console.log("Duplicate item, skipping");
+                        }
+                        // console.log(item.track.id);
+                    })
+
+                    if (data.next) {
+                        getPlaylistData(accessToken, data.next, callback);
+                    } else {
+                        // renderData(accessToken);
+                        callback();
+                        // console.log(totallist[0]);
+                    }
+
+                });
+
+
+        }
+
+        function analyzeTrack(accessToken, arr) {
+            var newArr = [];
+            //GET https://api.spotify.com/v1/audio-analysis/{id}
+            arr.forEach(function (item, index, array) {
+                newArr.push(item.getTrackData().id);
+                // console.log(item.getTrackData().id); 
+            })
+            var fullURL = 'https://api.spotify.com/v1/audio-features?ids=' + newArr.join(",");
+            // console.log(arr.join(","));
+            return fetch(fullURL, {
+                method: 'GET',
+
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                },
+
+            });
+
+        }
+
+
+
+        function getFeatures(accessToken) {
+            // var batchCount = 0;
+
+            // var completeCount = 0;
+            var mapArray = Array.from(particles.values());
+
+            // const it = makeRangeIterator(0, mapArray.length, 50);
+            // let result = it.next();
+            requestTrackWrapper(0);
+            function requestTrackWrapper(index) {
+                var maxedIndex = Math.min(index + 50, mapArray.length);
+                analyzeTrack(accessToken, mapArray.slice(index, maxedIndex)).then((response) => {
+                    return response.json();
+
+                }).then((data) => {
+
+                    setTimeout(function () {
+                        loadingText.textContent = "analyzing " + maxedIndex + "/" +  mapArray.length + ' songs...';
+                        loadingText.style.display = 'block';
+                        console.log("maxed:", maxedIndex, "index", index);
+                        if (data) {
+                            console.log(data);
+
+                            data.audio_features.forEach(function (item, index, array) {
+                                // console.log(c);
+
+                                // particles.set(item.audio_features.id, item.audio_features);
+                                particles.get(item.id).addFeatureData(item);
+                                // particles[completeCount + index].addFeatureData(item);
+                            })
+                        } else {
+                            console.log("no data");
+                        }
+                        if (maxedIndex < mapArray.length){
+                            requestTrackWrapper(maxedIndex);
+
+                        }else{
+                            loadingText.style.display = 'none';
+
+                            renderData();
+                        }
+
+                        // if (!result.done) {
+                        //     result = it.next();
+                        //     // console.log("iterating");
+                        // } else {
+                        //     renderData();
+                        //     console.log("done");
+                        // }
+                    }, 5)
+
+                });
+            }
+
+
+
+            function* makeRangeIterator(start, end, step) {
+                let iterationCount = 0;
+                for (let i = start; i < end; i += step) {
+                    iterationCount++;
+                    yield i;
+                }
+                return iterationCount;
+
+
+            }
+
+
+
+
+
+        }
+
+        var specialViews = [];
+        function renderData() {
+            // var data = JSON.parse(response.json());
+            //console.log(totallist);
+
+
+            var labels = [];
+            var container = document.getElementById("scene");
+
+            var CANVAS_WIDTH = container.clientWidth;
+            var CANVAS_HEIGHT = container.clientHeight; //pixels????
+            // console.log(container, CANVAS_WIDTH, CANVAS_HEIGHT);
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera(30, CANVAS_WIDTH / CANVAS_HEIGHT, 0.1, 1000);
+
+            let initDist = 300;
+
+            camera.position.x = initDist;
+            camera.position.y = initDist;
+
+            camera.position.z = initDist;
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+            container.appendChild(renderer.domElement);
+
+
+
+            // var geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+            // var material = new THREE.MeshBasicMaterial({
+            //     color: 0x00ff00
+            // });
+            // var cube = new THREE.Mesh(geometry, material);
+
+            //var instanceMesh = InstancedMesh(geometry, material, inputData.length);
+
+            
+
+            console.log(particles);
+            var selectCounter = 0;
+            const nSpecial = 20;
+            const increment = (particles.size / nSpecial);
+            particles.forEach(function (value, key, map) {
+                // var geometry = new THREE.SphereGeometry(poplist[popIndex].track.popularity/30, 10, 10 );
+
+                
+                let pop = value.getTrackData().popularity;
+
+                
+
+                var geometry = new THREE.SphereGeometry(value.getTrackData().popularity / 30, Math.ceil(pop/20 + 5), Math.ceil(pop/20 + 5));
+                
+                var col = new THREE.Color(value.getFeatureData().energy, value.getFeatureData().valence, value.getFeatureData().acousticness);
+                var material = new THREE.MeshBasicMaterial({ color: col });
+                var mesh = new THREE.Mesh(geometry, material);
+                mesh.position.x = 100 * value.getFeatureData().energy;
+                mesh.position.y = 100 * value.getFeatureData().valence;
+                mesh.position.z = 100 * value.getFeatureData().acousticness;
+
+               
+                if (selectCounter % increment == 0){
+                    var specialViewObj = new SpecialView();
+                    var newDiv = document.createElement("div");
+                    newDiv.style.position = 'absolute';
+                    newDiv.className = "thumbnail";
+                    container.appendChild(newDiv);
+
+                    specialViewObj.addElement(newDiv);
+                    let imgurl = value.getTrackData().album.images[2].url;
+                    specialViewObj.addTexture(imgurl);
+                    specialViewObj.addVector(mesh.position);
+                    specialViews.push(specialViewObj);
+                }
+                selectCounter++;
+                scene.add(mesh);
+                var label = addLabel(value.getTrackData().name, mesh.position, value.getTrackData().popularity/30);
+                labels.push(label)
+                scene.add(label);
+            })
+
+            var boxMesh = new THREE.Mesh(new THREE.BoxBufferGeometry(100, 100, 100));
+            boxMesh.position.x = 50;
+            boxMesh.position.y = 50;
+            boxMesh.position.z = 50;
+            var helper = new THREE.BoxHelper(boxMesh);
+            helper.material.color.setHex(0xFFFFFF)
+            helper.material.blending = THREE.AdditiveBlending;
+            helper.material.transparent = true;
+
+
+            scene.add(helper);
+ 
+            // const texture = new THREE.CanvasTexture(makeLabelCanvas(3200, "test"));
+    // because our canvas is likely not a power of 2
+    // in both dimensions set the filtering appropriately.
+            // texture.minFilter = THREE.LinearFilter;
+            // texture.wrapS = THREE.ClampToEdgeWrapping;
+            // texture.wrapT = THREE.ClampToEdgeWrapping;
+            // const labelGeometry = new THREE.PlaneBufferGeometry(1, 1);
+            // const labelMaterial = new THREE.MeshBasicMaterial({
+            //     map: texture,
+            //     // side: THREE.DoubleSide,
+            //     transparent: true,
+            // });
+            // const label = new THREE.Mesh(labelGeometry, labelMaterial);
+            // scene.add(label);
+            let xLabel = addHelperLabel("0 ⟵energy⟶ 100");
+            xLabel.position.x = 50;
+            xLabel.position.y = 10;
+            xLabel.position.z = 100;
+            scene.add(xLabel);
+
+            let yLabel = addHelperLabel("0 ⟵valence⟶ 100");
+            yLabel.position.x = 10;
+            yLabel.position.y = 50;
+            yLabel.rotation.z = 3.141/2;
+            scene.add(yLabel);
+
+            let zLabel = addHelperLabel("100 ⟵acousticness⟶ 0");
+            zLabel.position.x = 0;
+            zLabel.position.y = 10;
+            zLabel.position.z = 50;
+            zLabel.rotation.y = 3.141/2;
+            scene.add(zLabel);
+
+            
+            let xLabelBack = addHelperLabel("100 ⟵energy⟶ 0");
+            xLabelBack.position.x = 50;
+            xLabelBack.position.y = 10;
+            xLabelBack.position.z = 100;
+            xLabelBack.rotation.y = -3.141;
+            scene.add(xLabelBack);
+
+            let yLabelBack = addHelperLabel("0 ⟵valence⟶ 100");
+            yLabelBack.position.x = 10;
+            yLabelBack.position.y = 50;
+            yLabelBack.rotation.x = -3.141;
+            yLabelBack.rotation.z = -3.141/2;
+
+            scene.add(yLabelBack);
+
+            let zLabelBack = addHelperLabel("0 ⟵acousticness⟶ 100");
+            zLabelBack.position.x = 0;
+            zLabelBack.position.y = 10;
+            zLabelBack.position.z = 50;
+            zLabelBack.rotation.y = -3.141/2;
+            // zLabelBack.rotation.y = -3.141/2;
+
+            scene.add(zLabelBack);
+
+            var controls = new OrbitControls(camera, renderer.domElement);
+            controls.zoomSpeed = 0.5;
+            controls.target.set(50, 50, 50);
+            controls.update();
+            controls.addEventListener('change', requestRenderIfNotRequested);
+            controls.enableDamping = true;
+
+            window.addEventListener('resize', requestRenderIfNotRequested);
+
+            let renderRequested = false;
+            function render() {
+                console.log("rendered");
+                renderRequested = false;
+
+                labels.forEach(function (item, index, array) {
+                    const thresholdDist = 100;
+                    var dist = item.position.distanceTo(camera.position);
+                    item.material.opacity = -1 / (1 + Math.exp((100 - dist) * 0.2)) + 1;
+
+                    // if (dist < thresholdDist){
+
+                    // }else{
+                    //     item.material.opacity = 0;
+                    // }
+                })
+                specialViews.forEach(function(item, index, array){
+                    let ssVector = worldToScreen(item.vectorPos);
+                    // item.element.style.left = "200px";
+                    // item.element.style.top = "200px";
+                    // item.element.style.left = `${ssVector.x}px`;
+                    // item.element.style.bottom = `${ssVector.y}px`;
+                    item.element.style.left = `${ssVector.x}%`;
+                    item.element.style.bottom = `${ssVector.y}%`;
+
+                })
+                if (resizeRendererToDisplaySize(renderer)) {
+                    const canvas = renderer.domElement;
+                    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                    camera.updateProjectionMatrix();
+                }
+                controls.update();
+
+                renderer.render(scene, camera);
+
+            }
+            render();
+            function resizeRendererToDisplaySize(renderer) {
+                const canvas = renderer.domElement;
+                const width = canvas.clientWidth;
+                const height = canvas.clientHeight;
+                const needResize = canvas.width !== width || canvas.height !== height;
+                if (needResize) {
+                    renderer.setSize(width, height, false);
+                }
+                return needResize;
+            }
+
+            function requestRenderIfNotRequested() {
+                if (!renderRequested) {
+                    renderRequested = true;
+                    requestAnimationFrame(render);
+                }
+            }
+            function worldToScreen (paramVector){
+                // var widthHalf = CANVAS_WIDTH / 2, heightHalf = CANVAS_HEIGHT / 2;
+                // var vector = new THREE.Vector3();
+                // var projector = new THREE.Projector();
+                // projector.projectVector( vector.setFromMatrixPosition( object.matrixWorld ), camera );
+
+                // vector.x = ( vector.x * widthHalf ) + widthHalf;
+                // vector.y = - ( vector.y * heightHalf ) + heightHalf;
+                camera.updateMatrixWorld();
+                let vec = new THREE.Vector3(paramVector.x, paramVector.y, paramVector.z);
+                // const position = new THREE.Vector3(250, 250, 250);
+                const canvas = renderer.domElement;
+                // camera.updateProjectionMatrix();
+                vec.project(camera); // `camera` is a THREE.PerspectiveCamera
+                console.log(vec, (CANVAS_WIDTH / window.devicePixelRatio), CANVAS_WIDTH, window.devicePixelRatio);
+                // vec.x = Math.round((0.5 + vec.x / 2) * (canvas.width / window.devicePixelRatio));
+                // vec.y = Math.round((0.5 - vec.y / 2) * (canvas.height / window.devicePixelRatio));
+                // vec.x = Math.round(vec.x * (CANVAS_WIDTH / window.devicePixelRatio));
+                // vec.y = Math.round((0.5 - vec.y/2) * (CANVAS_HEIGHT / window.devicePixelRatio));
+                // vec.y = 100;
+                vec.x = (0.5 + vec.x/2) * 100 * canvasToWindow;
+                vec.y = (0.5 + vec.y/2) * 100;
+
+                return vec;
+            }
+            // window.addEventListener( 'resize', onWindowResize, false );
+
+        }
+
+        
+
+        function addLabel(content, position, distance) {
+            const canvas = makeLabelCanvas(32, content);
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.minFilter = THREE.LinearFilter;
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+
+            const labelMaterial = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                depthTest: false,
+            });
+            const label = new THREE.Sprite(labelMaterial);
+            const labelBaseScale = 0.01;
+
+            label.scale.x = canvas.width * labelBaseScale;
+            label.scale.y = canvas.height * labelBaseScale;
+            label.position.x = position.x;
+            label.position.y = position.y - distance - 1;
+            label.position.z = position.z;
+
+            return label;
+        }
+        const labelGeometry = new THREE.PlaneBufferGeometry(1, 1);
+
+        function addHelperLabel (content){
+            const canvas = makeLabelCanvas(32, content);
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.minFilter = THREE.LinearFilter;
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+
+            const labelMaterial = new THREE.MeshBasicMaterial({
+                map: texture,
+                // side: THREE.DoubleSide,
+                transparent: true,
+            });
+            const label = new THREE.Mesh(labelGeometry, labelMaterial);
+            // label.scale.set(50,16,16);
+            const labelBaseScale = 0.1;
+            label.scale.x = canvas.width * labelBaseScale;
+            label.scale.y = canvas.height * labelBaseScale;
+
+            return label;
+        }
+        function makeLabelCanvas(size, name) {
+            const borderSize = 2;
+            const ctx = document.createElement('canvas').getContext('2d');
+            const font = `${size}px Arial`;
+            ctx.font = font;
+            // measure how long the name will be
+            const doubleBorderSize = borderSize * 2;
+            const width = ctx.measureText(name).width + doubleBorderSize;
+            const height = size + doubleBorderSize;
+            ctx.canvas.width = width;
+            ctx.canvas.height = height;
+
+            // need to set font again after resizing canvas
+            ctx.font = font;
+            ctx.textBaseline = 'middle';
+            // ctx.textAlign = 'center';
+            // ctx.imageSmoothingEnabled = true;
+            // ctx.fillStyle = 'blue';
+            // ctx.fillRect(0, 0, width, height);
+
+            // scale to fit but don't stretch
+            // const scaleFactor = Math.min(1, baseWidth / textWidth);
+            ctx.translate(0, height / 2);
+            // ctx.scale(scaleFactor, 1);
+            
+            ctx.fillStyle = 'white';
+            ctx.fillText(name, borderSize, borderSize);
+            
+            return ctx.canvas;
+        }
+
+
+        class Particle {
+            trackData;
+            featureData;
+            addTrackData(trackData) {
+                this.trackData = trackData;
+            }
+
+            addFeatureData(featureData) {
+                this.featureData = featureData;
+            }
+            getTrackData(trackData) {
+                return this.trackData;
+            }
+            getFeatureData(featureData) {
+                return this.featureData;
+            }
+
+        }
+
+        class SpecialView {
+            element;
+            vectorPos;
+            addTexture (textURL){
+                // var texture = new THREE.TextureLoader().load(textURL);
+                // trackTexture = texture;
+                var img = document.createElement('img');
+                img.src = textURL;
+                this.element.appendChild(img);
+            }
+
+            addElement (element) {
+                this.element = element;
+            }
+
+            addVector(vectorPos){
+                this.vectorPos = new THREE.Vector3(vectorPos.x, vectorPos.y, vectorPos.z);
+            }
+        }
+    </script>
+
+</head>
+
+<body style="margin:0;">
+    <!-- <div id="scene" style="width:65%; height:100%; position:absolute"></div> -->
+
+    <div class="row">
+
+        <div class = "leftcell" id="scene"></div>
+        <div class="rightcell">
+            <button class="btnprimary" id="btn-login">LOGIN WITH SPOTIFY</button>
+            <p class="loadingtext"id="loadingbar">LOADING</p>
+            <img class="profile"id='profilepic'>
+            <p class = "titletext" id='title-text'> your spotify soundscape</p>
+            <p class="abouttext"> 
+                This page visualizes song metadata from your favorite songs. It plots abstract song attributes such as valence (a measure of mood), acousticness, and energy. 
+                <br>
+                <br>
+
+                These song attributes are used as parameters in Spotify's recommendation algorithm. 
+                <br>
+                <br>
+
+                This page was created using Spotify Web API, three.js, and Django. 
+            </p>
+            
+        </div>
+
+    </div>
+
+
+</body>
