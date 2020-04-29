@@ -15,3 +15,7 @@ RUN pip install -r requirements.txt
 
 # copy project
 COPY . /usr/src/spotme/
+
+EXPOSE 8000
+
+ENTRYPOINT ["python", "manage.py", "runserver"]
