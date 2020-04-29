@@ -3,15 +3,15 @@ from datetime import datetime
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
-from hello.forms import LogMessageForm
-from hello.models import LogMessage
+# from hello.forms import LogMessageForm
+# from hello.models import LogMessage
 from django.views.generic import ListView
 
 def token(request):
-    return render(request, "hello/token_proxy.html")
+    return render(request, "spotme/token_proxy.html")
 
 def visualize(request):
-    return render(request, "hello/visualize.html")
+    return render(request, "spotme/visualize.html")
 
 # def contact(request):
 #     return render(request, "hello/contact.html")

@@ -1,10 +1,8 @@
 {% load static %}
-<!-- <script src="{% static '/hello/rcube.js' %}"></script> -->
-<!-- <script src="{% static '/hello/three.js' %}"></script> -->
-<!-- <script src="{% static '/hello/OrbitControls.js' %}"></script> -->
+
 
 <head>
-    <link rel="stylesheet" href="{% static '/hello/site.css' %}">
+    <link rel="stylesheet" href="{% static '/spotme/site.css' %}">
     <script type="module">
         const canvasToWindow = 0.65;
         var loadingText = document.getElementById("loadingbar");
@@ -66,7 +64,7 @@
         function callBackFeatures() {
             
         }
-        import { OrbitControls } from "{% static '/hello/OrbitControls.js' %}";
+        import { OrbitControls } from "{% static '/spotme/OrbitControls.js' %}";
         // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
         import * as THREE from "https://threejs.org/build/three.module.js";
 
@@ -292,7 +290,7 @@
 
             console.log(particles);
             var selectCounter = 0;
-            const nSpecial = 10;
+            const nSpecial = 5;
             const increment = Math.round(particles.size / nSpecial);
             particles.forEach(function (value, key, map) {
                 // var geometry = new THREE.SphereGeometry(poplist[popIndex].track.popularity/30, 10, 10 );
@@ -323,9 +321,9 @@
                     specialViewObj.addElement(newDiv);
                     let imgurl = value.getTrackData().album.images[2].url;
                     specialViewObj.addTexture(imgurl);
-                    var titleText = document.createElement("p");
-                    titleText.textContent = value.getTrackData().name;
-                    newDiv.appendChild(titleText);
+                    specialViewObj.addName(value.getTrackData().name);
+
+
                     specialViewObj.addVector(mesh.position);
                     specialViews.push(specialViewObj);
                 }
@@ -606,7 +604,15 @@
                 img.src = textURL;
                 this.element.appendChild(img);
             }
-
+            addName(name){
+                if (this.element){
+                    var titleText = document.createElement('p');
+                    titleText.textContent = name;
+                    this.element.appendChild(titleText);
+                }else{
+                    console.log("called before element");
+                }
+            }
             addElement (element) {
                 this.element = element;
             }

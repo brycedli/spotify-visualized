@@ -148,9 +148,13 @@ body {background-color: black;
 }
 
 .thumbnail {
-    width: 64px;
+    width: 84px;
     /* height: 64px; */
-    color: white;
+    /* color: white; */
+    background-color: black;
+
+    border-radius: 10px;
+
     -webkit-user-select: none;
 }
 
@@ -160,10 +164,12 @@ body {background-color: black;
     /* clip: rect(0px,64px,64px,0px); */
     max-height: 64px;
     min-width: 64px;
+    margin: 10px;
 
 }
 .thumbnail p {
+    margin: 10px;
     color: white;
     font-family: 'Helvetica', sans-serif;
-
+    font-size: 6pt;
 }
