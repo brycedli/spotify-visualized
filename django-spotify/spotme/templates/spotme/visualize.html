@@ -10,63 +10,73 @@
         const playlistURL = '2BkGgQfqjpC2yHbBq9a2NB';
         var loginButton = document.getElementById('btn-login');
         var profile = document.getElementById('profilepic');
-        loginButton.addEventListener("click", function () {
+        var accessToken;
+        var hash = {};
 
-            login(function (accessToken) {
-                getUserPlaylists(accessToken).then((response) => {
+        var hasAnchor = false;
+        window.location.hash.replace(/^#\/?/, '').split('&').forEach(function(kv) {
+            var spl = kv.indexOf('=');
+            if (spl != -1) {
+                hash[kv.substring(0, spl)] = decodeURIComponent(kv.substring(spl+1));
+                hasAnchor = true;
+            }else{
+                hasAnchor = false;
+            }
+        });
+        console.log('initial hash', hash);
+        if (hash.access_token){
+            accessToken = hash.access_token;
+
+            getUserPlaylists(accessToken).then((response) => {
                     return response.json();
                 })
-                    .then((data) => {
+                .then((data) => {
 
-                        var itemCount = 0;
+                    var itemCount = 0;
 
-                        data.items.forEach(function (item, index, array) {
-                            var fullURL = 'https://api.spotify.com/v1/playlists/' + item.id + '/tracks';
-                            getPlaylistData(accessToken, fullURL, function (){
-                                itemCount++;
-                                if (itemCount == data.items.length){
-                                    console.log("getfeatures called, should be only once", itemCount, data.items.length);
-                                    loadingText.textContent = "fetching playlist" + itemCount;
+                    data.items.forEach(function (item, index, array) {
+                        var fullURL = 'https://api.spotify.com/v1/playlists/' + item.id + '/tracks';
+                        getPlaylistData(accessToken, fullURL, function (){
+                            itemCount++;
+                            if (itemCount == data.items.length){
+                                console.log("getfeatures called, should be only once", itemCount, data.items.length);
+                                loadingText.textContent = "fetching playlist" + itemCount;
 
-                                    getFeatures(accessToken);
-                                }
-                            });
-                        })
-                        if (data.next) {
-                            getUserPlaylists(accessToken, data.next);
-                        }
-                        loginButton.style.display = 'none';
-
-                        fetch('https://api.spotify.com/v1/me', {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': 'Bearer ' + accessToken,
+                                getFeatures(accessToken);
                             }
-                        }).then((response) => {
-                            return response.json();
-                        }).then((data => {
-                            nameText.textContent = data.display_name + "'s spotify soundscape";
-                            profile.src = data.images[0].url;
-                            profile.style.display = 'inline-block';
-                        }))
-                    })
+                        });
+                    });
+                    if (data.next) {
+                        getUserPlaylists(accessToken, data.next);
+                    }
+                    loginButton.style.display = 'none';
 
-
+                    fetch('https://api.spotify.com/v1/me', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken,
+                        }
+                    }).then((response) => {
+                        return response.json();
+                    }).then((data => {
+                        nameText.textContent = data.display_name + "'s spotify soundscape";
+                        profile.src = data.images[0].url;
+                        profile.style.display = 'inline-block';
+                    }));
             });
+        }
 
-
-
+        loginButton.addEventListener("click", function () {
+            login();
             
         });
-        function callBackFeatures() {
-            
-        }
+
         import { OrbitControls } from "{% static '/spotme/OrbitControls.js' %}";
         import * as THREE from "https://threejs.org/build/three.module.js";
 
-        function login(callback) {
+        function login() {
             var CLIENT_ID = '22ca38327ff8436cbf97e5979d2eb063';
-            var REDIRECT_URI = 'http://brycedemos.com/spotproxy/';
+            var REDIRECT_URI = 'http://brycedemos.com';
             function getLoginURL(scopes) {
                 return 'https://accounts.spotify.com/authorize?client_id=' + CLIENT_ID +
                     '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
@@ -78,23 +88,23 @@
                 'playlist-read-private'
             ]);
 
-            var width = 450,
-                height = 730,
-                left = (screen.width / 2) - (width / 2),
-                top = (screen.height / 2) - (height / 2);
+            // var width = 450,
+            //     height = 730,
+            //     left = (screen.width / 2) - (width / 2),
+            //     top = (screen.height / 2) - (height / 2);
 
-            window.addEventListener("message", function (event) {
-                var hash = JSON.parse(event.data);
-                if (hash.type == 'access_token') {
-                    callback(hash.access_token);
-                }
-            }, false);
+            // window.addEventListener("message", function (event) {
+            //     var hash = JSON.parse(event.data);
+            //     if (hash.type == 'access_token') {
+            //         callback(hash.access_token);
+            //     }
+            // }, false);
 
-            var w = window.open(url,
-                'Spotify',
-                'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left
-            );
-
+            
+            // window.location.href = url;
+            // window.location.replace(url);
+            // location.assign(url);
+            window.location = url;
         }
 
         function getUserPlaylists(accessToken) {
@@ -106,7 +116,7 @@
                 headers: {
                     'Authorization': 'Bearer ' + accessToken,
                 }
-            })
+            });
 
         }
         var particles = new Map();
@@ -120,8 +130,7 @@
 
             }).then((response) => {
                 return response.json();
-            })
-                .then((data) => {
+            }).then((data) => {
                     data.items.forEach(function (item, index, array) {
                         // totallist.push(item.track.id);
                         // poplist.push(item);
@@ -158,7 +167,7 @@
             arr.forEach(function (item, index, array) {
                 newArr.push(item.getTrackData().id);
                 // console.log(item.getTrackData().id); 
-            })
+            });
             var fullURL = 'https://api.spotify.com/v1/audio-features?ids=' + newArr.join(",");
             // console.log(arr.join(","));
             return fetch(fullURL, {
@@ -201,9 +210,14 @@
                                 // console.log(c);
 
                                 // particles.set(item.audio_features.id, item.audio_features);
-                                particles.get(item.id).addFeatureData(item);
+                                if (item.id && particles.get(item.id)){
+                                    particles.get(item.id).addFeatureData(item);
+
+                                }else{
+                                    console.log("item is null", data);
+                                }
                                 // particles[completeCount + index].addFeatureData(item);
-                            })
+                            });
                         } else {
                             console.log("no data");
                         }
@@ -223,7 +237,7 @@
                         //     renderData();
                         //     console.log("done");
                         // }
-                    }, 5)
+                    }, 5);
 
                 });
             }
@@ -294,7 +308,9 @@
                 
                 let pop = value.getTrackData().popularity;
 
-                
+                if (!value.getFeatureData()){
+                    return;
+                }
 
                 var geometry = new THREE.SphereGeometry(value.getTrackData().popularity / 30, Math.ceil(pop/20 + 5), Math.ceil(pop/20 + 5));
                 
@@ -326,16 +342,16 @@
                 selectCounter++;
                 scene.add(mesh);
                 var label = addLabel(value.getTrackData().name, mesh.position, value.getTrackData().popularity/30);
-                labels.push(label)
+                labels.push(label);
                 scene.add(label);
-            })
+            });
 
             var boxMesh = new THREE.Mesh(new THREE.BoxBufferGeometry(100, 100, 100));
             boxMesh.position.x = 50;
             boxMesh.position.y = 50;
             boxMesh.position.z = 50;
             var helper = new THREE.BoxHelper(boxMesh);
-            helper.material.color.setHex(0xFFFFFF)
+            helper.material.color.setHex(0xFFFFFF);
             helper.material.blending = THREE.AdditiveBlending;
             helper.material.transparent = true;
 
@@ -424,7 +440,7 @@
                     // }else{
                     //     item.material.opacity = 0;
                     // }
-                })
+                });
                 specialViews.forEach(function(item, index, array){
                     let ssVector = worldToScreen(item.vectorPos);
                     // item.element.style.left = "200px";
@@ -434,7 +450,7 @@
                     item.element.style.left = `${ssVector.x}%`;
                     item.element.style.bottom = `${ssVector.y}%`;
 
-                })
+                });
                 if (resizeRendererToDisplaySize(renderer)) {
                     const canvas = renderer.domElement;
                     camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -528,7 +544,7 @@
             const labelMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
                 // side: THREE.DoubleSide,
-                transparent: true,
+                transparent: true
             });
             const label = new THREE.Mesh(labelGeometry, labelMaterial);
             // label.scale.set(50,16,16);
@@ -571,34 +587,34 @@
 
 
         class Particle {
-            trackData;
-            featureData;
+            // trackData;
+            // featureData;
             addTrackData(trackData) {
                 this.trackData = trackData;
-            }
+            };
 
             addFeatureData(featureData) {
                 this.featureData = featureData;
-            }
+            };
             getTrackData(trackData) {
                 return this.trackData;
-            }
+            };
             getFeatureData(featureData) {
                 return this.featureData;
-            }
+            };
 
         }
 
         class SpecialView {
-            element;
-            vectorPos;
+            // element;
+            // vectorPos;
             addTexture (textURL){
                 // var texture = new THREE.TextureLoader().load(textURL);
                 // trackTexture = texture;
                 var img = document.createElement('img');
                 img.src = textURL;
                 this.element.appendChild(img);
-            }
+            };
             addName(name){
                 if (this.element){
                     var titleText = document.createElement('p');
@@ -607,14 +623,14 @@
                 }else{
                     console.log("called before element");
                 }
-            }
+            };
             addElement (element) {
                 this.element = element;
-            }
+            };
 
             addVector(vectorPos){
                 this.vectorPos = new THREE.Vector3(vectorPos.x, vectorPos.y, vectorPos.z);
-            }
+            };
         }
     </script>
 
