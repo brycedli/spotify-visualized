@@ -1,7 +1,7 @@
 # nginx.default
 
 server {
-    listen 8000;
+    listen 8080;
     server_name example.org;
 
     location / {
@@ -10,6 +10,8 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
     location /static {
+        expires 1d;
+
         root /opt/app/django-spotify/spotme;
     }
 }

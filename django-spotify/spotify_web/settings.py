@@ -27,7 +27,7 @@ SECRET_KEY = '3+-_u0r6dwh09yj-tm7+fidw2mge=9m60*$!%bnt&whoh4q%y$'
 DEBUG = True
 # ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
