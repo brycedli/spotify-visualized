@@ -12,6 +12,7 @@
         var profile = document.getElementById('profilepic');
         var accessToken;
         var hash = {};
+        var bucketHash = {};
 
         var hasAnchor = false;
         window.location.hash.replace(/^#\/?/, '').split('&').forEach(function(kv) {
@@ -76,7 +77,9 @@
 
         function login() {
             var CLIENT_ID = '22ca38327ff8436cbf97e5979d2eb063';
-            var REDIRECT_URI = 'http://brycedemos.com';
+            // var REDIRECT_URI = 'http://brycedemos.com';
+            var REDIRECT_URI = 'http://127.0.0.1:8000';
+
             function getLoginURL(scopes) {
                 return 'https://accounts.spotify.com/authorize?client_id=' + CLIENT_ID +
                     '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
@@ -139,6 +142,10 @@
                         // particle.id = item.track.id;
 
                         // particles.push(particle);
+                        if (!item){
+                            console.log("item aint here");
+                            return;
+                        }
                         if (!item.track){
                             console.log("no track found", item);
                             return;
@@ -212,13 +219,11 @@
 
                             data.audio_features.forEach(function (item, index, array) {
                                 // console.log(c);
-
+                                
                                 // particles.set(item.audio_features.id, item.audio_features);
-                                if (item.id && particles.get(item.id)){
+                                if (item && item.id && particles.get(item.id)){
                                     particles.get(item.id).addFeatureData(item);
 
-                                }else{
-                                    console.log("item is null", data);
                                 }
                                 // particles[completeCount + index].addFeatureData(item);
                             });
@@ -308,12 +313,25 @@
             const increment = Math.round(particles.size / nSpecial);
             particles.forEach(function (value, key, map) {
                 // var geometry = new THREE.SphereGeometry(poplist[popIndex].track.popularity/30, 10, 10 );
-
                 
                 let pop = value.getTrackData().popularity;
 
-                if (!value.getFeatureData()){
+                if (!value.getFeatureData() || !value.getFeatureData().energy|| !value.getFeatureData().valence|| !value.getFeatureData().acousticness){
                     return;
+                }
+
+                var hashKey = Math.floor(value.getFeatureData().energy*10) * 100000 + Math.floor(value.getFeatureData().valence*10) * 1000 + 10 * Math.floor(value.getFeatureData().acousticness*10) + 1;
+                let hashVal = bucketHash[hashKey];
+                const maxDensity = 10;
+                // console.log(hashVal, hashKey);
+                if (hashVal){
+                    if (hashVal > maxDensity){
+                        console.log("exceeded bucket size");
+                        return;
+                    }
+                    bucketHash[hashKey] = hashVal + 1;
+                }else{
+                    bucketHash[hashKey] = 1;
                 }
 
                 var geometry = new THREE.SphereGeometry(value.getTrackData().popularity / 30, Math.ceil(pop/20 + 5), Math.ceil(pop/20 + 5));
