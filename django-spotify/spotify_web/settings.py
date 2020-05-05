@@ -68,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'spotify_web.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 
 # Database

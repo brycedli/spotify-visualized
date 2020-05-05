@@ -139,6 +139,10 @@
                         // particle.id = item.track.id;
 
                         // particles.push(particle);
+                        if (!item.track){
+                            console.log("no track found", item);
+                            return;
+                        }
                         if (!particles.get(item.track.id)) {
                             particles.set(item.track.id, particle);
 
