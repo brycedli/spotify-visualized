@@ -1,3 +1,7 @@
+# About
+
+I'm Bryce, a high school senior studying design. This is my first full-stack web application, and my first experience with both frontend and backend development. 
+
 # spotify-visualized
 
 This page visualizes song metadata from your favorite songs. It plots abstract song attributes such as valence (a measure of mood), acousticness, and energy. These song attributes are used as parameters in Spotify's recommendation algorithm.
