@@ -6,91 +6,106 @@
     <link rel="shortcut icon" type="image/png" href="{% static '/spotme/favicon.ico' %}"/>
 
     <script type="module">
+        // window.onload = loadedDoc();
+
         const canvasToWindow = 0.65;
         const mobileCanvasToWindow = 0.5;
-
         var loadingText = document.getElementById("loadingbar");
         var nameText = document.getElementById('title-text');
-        const playlistURL = '2BkGgQfqjpC2yHbBq9a2NB';
         var loginButton = document.getElementById('btn-login');
         var profile = document.getElementById('profilepic');
         var accessToken;
         var hash = {};
         var bucketHash = {};
-
-        var hasAnchor = false;
-        window.location.hash.replace(/^#\/?/, '').split('&').forEach(function(kv) {
-            var spl = kv.indexOf('=');
-            if (spl != -1) {
-                hash[kv.substring(0, spl)] = decodeURIComponent(kv.substring(spl+1));
-                hasAnchor = true;
-            }else{
-                hasAnchor = false;
-            }
-        });
         var isMobile = window.innerHeight > window.innerWidth;
-        if (isMobile){
-            console.log(window.innerHeight, window.innerWidth);
 
-            let gameCell = document.getElementById("scene");
-            let textCell = document.getElementById("textcell");
-            gameCell.style.float= "none";
-            textCell.style.float= "none";
-            gameCell.style.width = "100%";
-            textCell.style.width = "100%";
-            textCell.style.height = "50%";
-            gameCell.style.height = "50%";
+        loadedDoc();
+        // $('document').ready(loadedDoc());
 
-
-        }
-        console.log('initial hash', hash);
-        if (hash.access_token){
-            window.location = "#";
-            accessToken = hash.access_token;
-
-            getUserPlaylists(accessToken).then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-
-                    var itemCount = 0;
-
-                    data.items.forEach(function (item, index, array) {
-                        var fullURL = 'https://api.spotify.com/v1/playlists/' + item.id + '/tracks';
-                        getPlaylistData(accessToken, fullURL, function (){
-                            itemCount++;
-                            if (itemCount == data.items.length){
-                                console.log("getfeatures called, should be only once", itemCount, data.items.length);
-                                loadingText.textContent = "fetching playlist" + itemCount;
-
-                                getFeatures(accessToken);
-                            }
-                        });
-                    });
-                    if (data.next) {
-                        getUserPlaylists(accessToken, data.next);
-                    }
-                    loginButton.style.display = 'none';
-
-                    fetch('https://api.spotify.com/v1/me', {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': 'Bearer ' + accessToken,
-                        }
-                    }).then((response) => {
-                        return response.json();
-                    }).then((data => {
-                        nameText.textContent = data.display_name + "'s spotify soundscape";
-                        profile.src = data.images[0].url;
-                        profile.style.display = 'inline-block';
-                    }));
+        function loadedDoc(){
+             loadingText = document.getElementById("loadingbar");
+             nameText = document.getElementById('title-text');
+             loginButton = document.getElementById('btn-login');
+             profile = document.getElementById('profilepic');
+             accessToken;
+             hash = {};
+             bucketHash = {};
+            loginButton.addEventListener("click", function () {
+                login();
+                
             });
-        }
 
-        loginButton.addEventListener("click", function () {
-            login();
+            var hasAnchor = false;
+            window.location.hash.replace(/^#\/?/, '').split('&').forEach(function(kv) {
+                var spl = kv.indexOf('=');
+                if (spl != -1) {
+                    hash[kv.substring(0, spl)] = decodeURIComponent(kv.substring(spl+1));
+                    hasAnchor = true;
+                }else{
+                    hasAnchor = false;
+                }
+            });
+            if (isMobile){
+                console.log(window.innerHeight, window.innerWidth);
+
+                let gameCell = document.getElementById("scene");
+                let textCell = document.getElementById("textcell");
+                gameCell.style.float= "none";
+                textCell.style.float= "none";
+                gameCell.style.width = "100%";
+                textCell.style.width = "100%";
+                textCell.style.height = "50%";
+                gameCell.style.height = "50%";
+
+
+            }
+            console.log('initial hash', hash);
+            if (hash.access_token){
+                window.location = "#";
+                accessToken = hash.access_token;
+
+                getUserPlaylists(accessToken).then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+
+                        var itemCount = 0;
+
+                        data.items.forEach(function (item, index, array) {
+                            var fullURL = 'https://api.spotify.com/v1/playlists/' + item.id + '/tracks';
+                            getPlaylistData(accessToken, fullURL, function (){
+                                itemCount++;
+                                if (itemCount == data.items.length){
+                                    console.log("getfeatures called, should be only once", itemCount, data.items.length);
+                                    loadingText.textContent = "fetching playlist" + itemCount;
+
+                                    getFeatures(accessToken);
+                                }
+                            });
+                        });
+                        if (data.next) {
+                            getUserPlaylists(accessToken, data.next);
+                        }
+                        loginButton.style.display = 'none';
+
+                        fetch('https://api.spotify.com/v1/me', {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': 'Bearer ' + accessToken,
+                            }
+                        }).then((response) => {
+                            return response.json();
+                        }).then((data => {
+                            nameText.textContent = data.display_name + "'s spotify soundscape";
+                            profile.src = data.images[0].url;
+                            profile.style.display = 'inline-block';
+                        }));
+                });
+            }
+
             
-        });
+        }
+        
 
         import { OrbitControls } from "{% static '/spotme/OrbitControls.js' %}";
         import * as THREE from "https://threejs.org/build/three.module.js";
