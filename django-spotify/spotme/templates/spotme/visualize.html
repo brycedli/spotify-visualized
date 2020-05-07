@@ -3,8 +3,12 @@
 
 <head>
     <link rel="stylesheet" href="{% static '/spotme/site.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static '/spotme/favicon.ico' %}"/>
+
     <script type="module">
         const canvasToWindow = 0.65;
+        const mobileCanvasToWindow = 0.5;
+
         var loadingText = document.getElementById("loadingbar");
         var nameText = document.getElementById('title-text');
         const playlistURL = '2BkGgQfqjpC2yHbBq9a2NB';
@@ -24,8 +28,24 @@
                 hasAnchor = false;
             }
         });
+        var isMobile = window.innerHeight > window.innerWidth;
+        if (isMobile){
+            console.log(window.innerHeight, window.innerWidth);
+
+            let gameCell = document.getElementById("scene");
+            let textCell = document.getElementById("textcell");
+            gameCell.style.float= "none";
+            textCell.style.float= "none";
+            gameCell.style.width = "100%";
+            textCell.style.width = "100%";
+            textCell.style.height = "50%";
+            gameCell.style.height = "50%";
+
+
+        }
         console.log('initial hash', hash);
         if (hash.access_token){
+            window.location = "#";
             accessToken = hash.access_token;
 
             getUserPlaylists(accessToken).then((response) => {
@@ -77,8 +97,8 @@
 
         function login() {
             var CLIENT_ID = '22ca38327ff8436cbf97e5979d2eb063';
-            // var REDIRECT_URI = 'http://brycedemos.com';
-            var REDIRECT_URI = 'http://127.0.0.1:8000';
+            var REDIRECT_URI = 'http://brycedemos.com';
+            // var REDIRECT_URI = 'http://127.0.0.1:8000';
 
             function getLoginURL(scopes) {
                 return 'https://accounts.spotify.com/authorize?client_id=' + CLIENT_ID +
@@ -469,8 +489,14 @@
                     // item.element.style.top = "200px";
                     // item.element.style.left = `${ssVector.x}px`;
                     // item.element.style.bottom = `${ssVector.y}px`;
-                    item.element.style.left = `${ssVector.x}%`;
-                    item.element.style.bottom = `${ssVector.y}%`;
+                    if (isMobile){
+                        item.element.style.left = `${ssVector.x}%`;
+                        item.element.style.top = `${ssVector.y}%`;
+                    }else{
+                        item.element.style.left = `${ssVector.x}%`;
+                        item.element.style.bottom = `${ssVector.y}%`;   
+                    }
+                    
 
                 });
                 if (resizeRendererToDisplaySize(renderer)) {
@@ -520,8 +546,16 @@
                 // vec.x = Math.round(vec.x * (CANVAS_WIDTH / window.devicePixelRatio));
                 // vec.y = Math.round((0.5 - vec.y/2) * (CANVAS_HEIGHT / window.devicePixelRatio));
                 // vec.y = 100;
-                vec.x = (0.5 + vec.x/2) * 100 * canvasToWindow;
-                vec.y = (0.5 + vec.y/2) * 100;
+                
+                if (isMobile){
+                    vec.x = (0.5 + vec.x/2) * 100;
+                    vec.y = (0.5 - vec.y/2) * 100 * mobileCanvasToWindow;
+                }else{
+                    vec.x = (0.5 + vec.x/2) * 100 * canvasToWindow;
+
+                    vec.y = (0.5 + vec.y/2) * 100;
+
+                }
 
                 return vec;
             }
@@ -661,10 +695,9 @@
 <body style="margin:0;">
     <!-- <div id="scene" style="width:65%; height:100%; position:absolute"></div> -->
 
-    <div class="row">
 
         <div class = "leftcell" id="scene"></div>
-        <div class="rightcell">
+        <div class="rightcell" id="textcell">
             <button class="btnprimary" id="btn-login">LOGIN WITH SPOTIFY</button>
             <p class="loadingtext"id="loadingbar">LOADING</p>
             <img class="profile"id='profilepic'>
@@ -679,11 +712,14 @@
                 <br>
 
                 This page was created using Spotify Web API, three.js, and Django. 
+
             </p>
-            
+            <!-- <img src="{% static '/spotme/zoom.png'%}" style="width: 128px;"/> -->
+
+            <img src = "https://media1.giphy.com/media/McnLX8SJBtGHh26W8a/giphy.gif" style="width: 50%;"> 
+            <p style="color:white;font-size: 8pt;font-family:  'Lucidia Console', Monaco, monospace;margin-top: 5px;">(DEMO)</p>
         </div>
 
-    </div>
 
 
 </body>

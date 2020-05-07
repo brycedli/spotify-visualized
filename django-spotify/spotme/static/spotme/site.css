@@ -50,7 +50,7 @@ input[name=message] {
 }
 
 body {background-color: black;
-    /* height: 100%; */
+    height: 100%;
 }
 
 #titletext {
@@ -76,9 +76,13 @@ body {background-color: black;
     /* display: table-cell; */
     background-color: #181818;
     
-
+    /* margin: 50px; */
 }
-
+.rightcell > * {
+    margin: 50px;
+    margin-top: 25px;
+    margin-bottom: 0px;
+}
 .row {
     width: 100%;
     height: 100%;
@@ -92,8 +96,8 @@ body {background-color: black;
     font-size: 12pt;
     line-height: 16pt;
 
-    margin: 50px;
-    margin-top: 25px;
+    /* margin: 50px; */
+    /* margin-top: 25px; */
 
     color: white;
 }
@@ -101,16 +105,16 @@ body {background-color: black;
 .titletext {
     font-family: 'Helvetica', sans-serif;
     font-size: 52pt;
-    margin: 50px;
+    /* margin: 50px;
     margin-top: 25px;
 
-    margin-bottom: 0;
+    margin-bottom: 0; */
     color: white;
     font-weight: bold;
 }
 
 .btnprimary {
-    margin-left: 50px;
+    /* margin-left: 50px;*/
     margin-top: 50px;
     background-color: #1DB954;
     border: 2px solid #1DB954;
@@ -130,18 +134,19 @@ body {background-color: black;
   }
 
 .profile {
-    margin-left: 50px;
-    margin-top: 50px;
+    /* margin-left: 50px;
+    margin-top: 50px; */
+
     border-radius: 50%;
-    /* height: 20%;
-    width: 20%; */
+    height: 100px;
+    /* width: 20%; */
     display: none;
 
 }
 
 .loadingtext {
     color: white;
-    margin-left: 50px;
+    /* margin-left: 50px; */
     display: none;
     font-size: 8pt;
     font-family: "Lucidia Console", Monaco, monospace;
