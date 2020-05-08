@@ -6,7 +6,7 @@
     <link rel="shortcut icon" type="image/png" href="{% static '/spotme/favicon.ico' %}"/>
 
     <script type="module">
-        // window.onload = loadedDoc();
+        window.onload = loadedDoc;
 
         const canvasToWindow = 0.65;
         const mobileCanvasToWindow = 0.5;
@@ -19,7 +19,7 @@
         var bucketHash = {};
         var isMobile = window.innerHeight > window.innerWidth;
 
-        loadedDoc();
+        // loadedDoc();
         // $('document').ready(loadedDoc());
 
         function loadedDoc(){
@@ -27,22 +27,16 @@
              nameText = document.getElementById('title-text');
              loginButton = document.getElementById('btn-login');
              profile = document.getElementById('profilepic');
-             accessToken;
-             hash = {};
-             bucketHash = {};
+
             loginButton.addEventListener("click", function () {
                 login();
                 
             });
 
-            var hasAnchor = false;
             window.location.hash.replace(/^#\/?/, '').split('&').forEach(function(kv) {
                 var spl = kv.indexOf('=');
                 if (spl != -1) {
                     hash[kv.substring(0, spl)] = decodeURIComponent(kv.substring(spl+1));
-                    hasAnchor = true;
-                }else{
-                    hasAnchor = false;
                 }
             });
             if (isMobile){
@@ -61,7 +55,7 @@
             }
             console.log('initial hash', hash);
             if (hash.access_token){
-                window.location = "#";
+                // window.location = "#";
                 accessToken = hash.access_token;
 
                 getUserPlaylists(accessToken).then((response) => {
