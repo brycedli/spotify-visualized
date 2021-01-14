@@ -16,8 +16,10 @@ function App() {
       
       <Router>
         <Switch>
-          <Route path="/login">
+          <Route path="/">
             <LoginPage/>
+            <VisualizePage/>
+
           </Route>
           <Route path="/visualize">
             <VisualizePage/>

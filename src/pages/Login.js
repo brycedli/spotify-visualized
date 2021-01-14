@@ -8,14 +8,14 @@ function onLogin(){
             '&response_type=token';
     }
     var url = getLoginURL([
-        'playlist-read-private'
+        'user-top-read'
     ])
-    console.log(url)
+    window.location = url;
 }
 export default function LoginPage(){
     return(
         <div>
-            <button onClick={onLogin()}>
+            <button onClick={onLogin}>
                 Connect spotify
             </button>
             <p>
