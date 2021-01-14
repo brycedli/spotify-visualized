@@ -1,4 +1,6 @@
 import { map } from "async";
+import { Component, createElement } from "react";
+import * as THREE from "three";
 
 var accessToken;
 var hash = {};
@@ -10,18 +12,23 @@ window.location.hash.replace(/^#\/?/, '').split('&').forEach(function(kv) {
     }
     
 });
-// var maxSongs = 100;
+var maxSongs = 400;
 
-console.log('initial hash', hash);
+// console.log('initial hash', hash);
 if (hash.access_token){
+    // initializeThree();
     accessToken = hash.access_token;
-    var url = 'https://api.spotify.com/v1/me/tracks?time_range=long_term&limit=50';
+
+    //var url = 'https://api.spotify.com/v1/me/tracks?time_range=short_term&limit=10';
+    var url = 'https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=10'
     getTopSongs(url, function(){
-        console.log(particles);
-        getFeatures();
+        getFeatures(function(){
+            console.log("done", particles);
+
+        });
     });
 
-    function getFeatures(){
+    function getFeatures(callback){
         function analyzeTrack(accessToken, arr) {
             var newArr = [];
             //GET https://api.spotify.com/v1/audio-analysis/{id}
@@ -68,7 +75,8 @@ if (hash.access_token){
 
                         }else{
                             // loadingText.style.display = 'none';
-                            console.log("done");
+                            callback();
+                            // console.log("done");
                             // renderData();
                         }
                     }, 5);
@@ -87,19 +95,18 @@ if (hash.access_token){
         }).then((response)=>{
             return response.json();
         }).then((data)=> {
-            // console.log(data);
+            console.log(data);
+
             data.items.forEach(function(item, index, array) {
                 var particle = new Particle();
-                particle.addTrackData(item.track);
+                particle.addTrackData(item);
+                // console.log(item.track.name, item.track.artists[0].name);
                 if(!item){
                     console.log("item not found in initial song loop");
                 }
-                if (!item.track){
-                    console.log("no track found", item);
-                    return;
-                }
-                if (!particles.get(item.track.id)) {
-                    particles.set(item.track.id, particle);
+
+                if (!particles.get(item.id)) {
+                    particles.set(item.id, particle);
     
                 } else {
                     console.log("Duplicate item, skipping");
@@ -107,9 +114,17 @@ if (hash.access_token){
                 
 
             })
+            console.log(data.next, data.offset);
+
+            // if (maxSongs > particles.size){
+            //     getTopSongs(data.next, callback);
+
+            // }
             if (data.next) {
+
                 getTopSongs(data.next, callback);
-            } else {
+            } 
+            else {
                 callback();
             }
         });
@@ -134,12 +149,67 @@ class Particle {
     };
 
 }
+
+
+
+class ThreeComponent extends Component {
+    constructor (props){
+        super(props);
+        
+    }
+    handleUpdate(particles){
+        if (particles){
+            //do particle addition logic here, otherwise render.
+        }
+        this.renderer.render(this.scene, this.camera);
+        console.log("rendered");
+    }
+    
+    // return <h1>Hello</h1>;
+    componentDidMount(){
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+        );
+
+        this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.mount.appendChild(this.renderer.domElement);
+
+        var geometry = new THREE.BoxGeometry(1, 1, 1);
+        var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        var cube = new THREE.Mesh(geometry, material);
+        this.scene.add(cube);
+
+        this.camera.position.z = 5;
+
+        this.renderer.render(this.scene, this.camera);
+    }
+    render(){
+        return (<div 
+            style={{ width: "800px", height: "800px" }}
+            ref={mount => { this.mount = mount}}
+            />)
+    }
+
+    
+}
+// console.log("creating component")
+// const objType = createElement(ThreeComponent,{ name:"nnamdi" });
+// objType.handleUpdate();
+var threeCompRef;
+
 export default function VisualizePage(){
     return(
         <div>
             <p>
                 Visualize stuff here
             </p>
+            <ThreeComponent ref={this.threeCompRef}/>
         </div>
     )
 }
+// threeCompRef.handleUpdate();
