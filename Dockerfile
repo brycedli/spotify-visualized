@@ -1,25 +1,38 @@
-# Dockerfile
+FROM alpine:latest
+RUN apk update 
+RUN apk add bash \
+	git \
+	openssh \
+	python3 \
+	python3-dev \
+	gcc \
+	build-base \
+	linux-headers \
+	pcre-dev \
+	postgresql-dev \
+	musl-dev \
+	libxml2-dev \
+	libxslt-dev \
+	nginx \
+	curl \
+	supervisor && \
+	python3 -m ensurepip && \
+    rm -r /usr/lib/python*/ensurepip && \
+    pip3 install --upgrade pip setuptools && \
+    rm -r /root/.cache && \
+    pip3 install --upgrade pip setuptools && \
+    rm -r /root/.cache && \
+pip3 install uwsgi && \
+mkdir -p /run/nginx
+COPY requirements.txt  /home/app/
+RUN pip3 install -r /home/app/requirements.txt
+# COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.default /etc/nginx/conf.d/default.conf
+COPY supervisor.conf /etc/supervisor/conf.d/
+COPY spotme_app  /home/app/spotme_app/
+COPY spotify-visualized-project  /home/app/spotify-visualized-project/
+COPY supervisor.conf uwsgi_params uwsgi.ini  /home/app/
 
-FROM python:3.7-buster
-
-# install nginx
-RUN apt-get update && apt-get install nginx vim -y --no-install-recommends
-COPY nginx.default /etc/nginx/sites-available/default
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
-
-# copy source and install dependencies
-RUN mkdir -p /opt/app
-RUN mkdir -p /opt/app/pip_cache
-RUN mkdir -p /opt/app/django-spotify
-COPY requirements.txt start-server.sh uwsgi_params /opt/app/
-COPY .pip_cache /opt/app/pip_cache/
-COPY django-spotify /opt/app/django-spotify/
-WORKDIR /opt/app
-RUN pip install -r requirements.txt --cache-dir /opt/app/pip_cache
-RUN chown -R www-data:www-data /opt/app
-
-# start server
-# EXPOSE 80
-STOPSIGNAL SIGTERM
-CMD ["/opt/app/start-server.sh"]
+WORKDIR /home/app/
+EXPOSE 8080
+CMD ["supervisord", "-n", "-c", "/home/app/supervisor.conf"]
