@@ -1,32 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Link
 } from "react-router-dom";
+
+import { ThemeProvider } from '@material-ui/core/styles'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import theme from "./theme";
+
+// import logo from './logo.svg';
+// import './App.css';
+
 import LoginPage from './pages/Login'
 import VisualizePage from './pages/Visualize'
 
 function App() {
 
   return (
-    <div className="App">
-      
+    <ThemeProvider theme={theme}>
+    <CssBaseline />
+    <div className="App" >
       <Router>
         <Switch>
           <Route path="/">
             <LoginPage/>
-            <VisualizePage/>
-
           </Route>
           <Route path="/visualize">
             <VisualizePage/>
           </Route>
         </Switch>
       </Router>
-      <header className="App-header">
+      {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.js</code> and save to reload.
@@ -39,8 +45,9 @@ function App() {
         >
           Learn React
         </a>
-      </header>
+      </header> */}
     </div>
+  </ThemeProvider>
   );
 }
 

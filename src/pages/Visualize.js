@@ -1,13 +1,17 @@
 import { map } from "async";
 import { Component, createElement } from "react";
 import * as THREE from "three";
+import { connect } from 'react-redux'
+import { addParticles } from '../actions'
+import PropTypes from 'prop-types';
+
 
 var accessToken;
 var hash = {};
 var particles = new Map();
 window.location.hash.replace(/^#\/?/, '').split('&').forEach(function(kv) {
     var spl = kv.indexOf('=');
-    if (spl != -1) {
+    if (spl !== -1) {
         hash[kv.substring(0, spl)] = decodeURIComponent(kv.substring(spl+1));
     }
     
@@ -115,6 +119,8 @@ if (hash.access_token){
 
             })
             console.log(data.next, data.offset);
+            //update view
+            //updateFunction
 
             // if (maxSongs > particles.size){
             //     getTopSongs(data.next, callback);
@@ -152,64 +158,137 @@ class Particle {
 
 
 
-class ThreeComponent extends Component {
-    constructor (props){
-        super(props);
-        
-    }
-    handleUpdate(particles){
-        if (particles){
-            //do particle addition logic here, otherwise render.
-        }
-        this.renderer.render(this.scene, this.camera);
-        console.log("rendered");
+class ThreeJsComponent extends Component {
+
+  constructor (props){
+    super(props);
+    this.particles = [];
+  }
+  componentDidUpdate(preProp) {
+    console.log('updated');
+    this.handleUpdate();
+  }
+  renderParticle(particle){
+    //do particle addition logic here, otherwise render.
+    //1. create new sphere , set pos and size, color
+    //2. create new 3d text, set anchor,size,content
+    //3. this.renderer.add sphere and text
+    var geometry = new THREE.BoxGeometry(2, 0.5, 0.5);
+    var material = new THREE.MeshBasicMaterial({ color: 0x333300 });
+    var cube = new THREE.Mesh(geometry, material);
+    cube.position.x = Math.floor(Math.random() * 4);
+    cube.position.y = Math.floor(Math.random() * 4);
+    this.scene.add(cube);
+  }
+  
+  handleUpdate(){
+    console.log(`render particle ${this.props.particles} in Visualize`);
+    const currentState = [];
+    for (const p in this.props.particles){
+      //console.log(p);
+      this.renderParticle(p);
+      this.particles.push(p);
     }
     
-    // return <h1>Hello</h1>;
-    componentDidMount(){
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-        );
+    this.renderer.render(this.scene, this.camera);
+    console.log('rendered', this.particles);
+    //somehow add orbit control js, which allow drag to rotate camera
+    //https://github.com/brycedli/spotify-visualized/blob/aa9485c2b8b2a4f60869ac57ae89cd051da053bb/django-spotify/spotme/templates/spotme/visualize.html#L470
+    console.log("rendered");
+  }
+  
+  // return <h1>Hello</h1>;
+  componentDidMount(){
+      this.scene = new THREE.Scene();
+      this.camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+      );
 
-        this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.mount.appendChild(this.renderer.domElement);
+      this.renderer = new THREE.WebGLRenderer();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      console.log(this.mount);
+      this.mount.appendChild(this.renderer.domElement);
 
-        var geometry = new THREE.BoxGeometry(1, 1, 1);
-        var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        var cube = new THREE.Mesh(geometry, material);
-        this.scene.add(cube);
+      var geometry = new THREE.BoxGeometry(1, 1, 1);
+      var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      var cube = new THREE.Mesh(geometry, material);
+      this.scene.add(cube);
 
-        this.camera.position.z = 5;
+      this.camera.position.z = 5;
 
-        this.renderer.render(this.scene, this.camera);
-    }
-    render(){
-        return (<div 
+      this.renderer.render(this.scene, this.camera);
+      var _renderer = this.renderer;
+      var _scene = this.scene;
+      var _camera = this.camera;
+      var animate = function () {
+        requestAnimationFrame( animate );
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+        _renderer.render( _scene, _camera );
+      };
+      animate();
+  }
+
+  render(){
+    return (
+      <div>
+        <p>
+            Visualize stuff here
+        </p>
+        <p>
+          {/* particles: {this.props.particle} */}
+        </p>
+        {/* <ul>
+          {this.props.particles.map(p => (
+          <li>{p}</li>
+          ))}
+        </ul> */}
+        <div 
             style={{ width: "800px", height: "800px" }}
             ref={mount => { this.mount = mount}}
-            />)
-    }
-
-    
+        />
+      </div>
+    )
+  }
 }
 // console.log("creating component")
-// const objType = createElement(ThreeComponent,{ name:"nnamdi" });
+// const objType = createElement(ThreeJsComponent,{ name:"nnamdi" });
 // objType.handleUpdate();
-var threeCompRef;
+// var threeCompRef;
+// export default function VisualizePage(){
+//     return(
+//         <div>
+//             <p>
+//                 Visualize stuff here
+//             </p>
+//             <ThreeJsComponent/>
+//             {/* <ThreeJsComponent ref={this.threeCompRef}/> */}
+//         </div>
+//     )
+// }
 
-export default function VisualizePage(){
-    return(
-        <div>
-            <p>
-                Visualize stuff here
-            </p>
-            <ThreeComponent ref={this.threeCompRef}/>
-        </div>
-    )
+
+const mapStateToProps = (state) => {
+  console.log(state.particles);
+  return {
+    particles: state.particles
+  };
 }
-// threeCompRef.handleUpdate();
+
+// const mapDispatchToProps = dispatch => {
+//   console.log('mapDispatchToProps called');
+//   return {
+//     particles: partical => dispatch(partical)
+//   };
+// }
+
+ThreeJsComponent.propTypes = {
+  particles: PropTypes.array
+}
+
+
+
+export default connect(mapStateToProps /*,mapDispatchToProps*/)(ThreeJsComponent) 
