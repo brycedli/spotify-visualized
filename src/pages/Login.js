@@ -2,7 +2,6 @@ import { map } from "async";
 import { Component, createElement } from "react";
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import Welcome from '../components/Welcome'
 
 function onLogin(){
     var CLIENT_ID = '22ca38327ff8436cbf97e5979d2eb063';
@@ -55,13 +54,16 @@ class LoginComponent extends Component {
 
   render(){
     return (
-        <Welcome />
-        // {/* <button onClick={onLogin}>
+        <p>
+          Login page
+          // <button onClick={onLogin}>
         //     Connect spotify
         // </button>
         // <button onClick={this.test}>
         //     add five particles
-        // </button> */}
+        // </button>
+        </p>
+
     )
   }
 }

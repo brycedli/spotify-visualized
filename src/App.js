@@ -12,7 +12,7 @@ import theme from "./theme";
 
 // import logo from './logo.svg';
 // import './App.css';
-
+import Home from './pages/Home'
 import LoginPage from './pages/Login'
 import VisualizePage from './pages/Visualize'
 
@@ -24,12 +24,9 @@ function App() {
     <div className="App" >
       <Router>
         <Switch>
-          <Route path="/">
-            <LoginPage/>
-          </Route>
-          <Route path="/visualize">
-            <VisualizePage/>
-          </Route>
+          <Route exact path="/" component={Home}></Route>
+          <Route path="/login" component={LoginPage}></Route>
+          <Route path="/visualize" component={VisualizePage}></Route>
         </Switch>
       </Router>
       {/* <header className="App-header">
