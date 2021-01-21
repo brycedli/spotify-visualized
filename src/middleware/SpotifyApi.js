@@ -56,6 +56,7 @@ export const getTopSongs =  (callback, url = url_top_song) => {
   }).then((response)=>{
       return response.json();
   }).then(async (data)=> {
+      //https://blog.scottlogic.com/2017/09/14/asynchronous-recursion.html
       // console.log(data);
       const particles = new Map();
       data.items.forEach(function(item, index, array) {
