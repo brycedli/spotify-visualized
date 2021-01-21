@@ -26,57 +26,64 @@ export const CONNECTION_URL = API_URL + '/authorize?client_id=' + CLIENT_ID +
 
 export const authenticateSpotify = (window_location)=>{
   console.log('Start spotify api authentication');
-  // const _api_session = this.api_session;
-  window_location.hash.replace(/^#\/?/, '').split('&').forEach(function(kv) {
+  try {
+    let valid = false;
+    window_location.hash.replace(/^#\/?/, '').split('&').forEach(function(kv) {
       var spl = kv.indexOf('=');
       if (spl !== -1) {
         api_session[kv.substring(0, spl)] = decodeURIComponent(kv.substring(spl+1));
+        valid = true;
       }
-  });
-  api_session_ts =  new Date()
-  console.log('api_session',api_session, "api_session_ts", api_session_ts);
+    });
+    api_session_ts =  new Date();
+    console.log('api_session',api_session, "api_session_ts", api_session_ts);
+    return valid;
+  } catch (err) {
+    return false;
+  }
 }
 
 const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const getTopSongs = async (callback, url = url_top_song) => {
-        
-        fetch(url,{
-            method: 'GET',
-            headers:{
-                'Authorization' : 'Bearer ' + api_session.access_token,
-            },
+export const getTopSongs =  (callback, url = url_top_song) => {
     
-        }).then((response)=>{
-            return response.json();
-        }).then((data)=> {
-            // console.log(data);
-            const particles = new Map();
-            data.items.forEach(function(item, index, array) {
-                var particle = new Particle();
-                particle.addTrackData(item);
-                // console.log(item.track.name, item.track.artists[0].name);
-                if(!item){
-                    console.log("item not found in initial song loop");
-                }
+  fetch(url,{
+      method: 'GET',
+      headers:{
+          'Authorization' : 'Bearer ' + api_session.access_token,
+      },
 
-                particles.set(item.id, particle);
+  }).then((response)=>{
+      return response.json();
+  }).then(async (data)=> {
+      // console.log(data);
+      const particles = new Map();
+      data.items.forEach(function(item, index, array) {
+          var particle = new Particle();
+          particle.addTrackData(item);
+          // console.log(item.track.name, item.track.artists[0].name);
+          if(!item){
+              console.log("item not found in initial song loop");
+          }
 
-            })
-            // console.log(data.next, data.offset);
-            callback(particles);
+          particles.set(item.id, particle);
+
+      })
+      // console.log(data.next, data.offset);
+      callback(particles);
 
 
-            //update view
-            //updateFunction
+      //update view
+      //updateFunction
 
-            // if (maxSongs > particles.size){
-            //     getTopSongs(data.next, callback);
+      // if (maxSongs > particles.size){
+      //     getTopSongs(data.next, callback);
 
-            // }
-            if (data.next) {
-              //await wait(500);
-              getTopSongs(callback, data.next);
-            }
-        });
-    }
+      // }
+      
+      if (data.next) {
+        await wait(500);
+        getTopSongs(callback, data.next);
+      }
+  });
+}

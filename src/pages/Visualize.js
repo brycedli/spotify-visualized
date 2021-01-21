@@ -200,7 +200,13 @@ class ThreeJsComponent extends Component {
   componentDidMount(){
     //handle login redirect
     const _particles = this.particles;
-    authenticateSpotify(window.location);
+    if (!authenticateSpotify(window.location)) {
+      window.location = '/';
+      return;
+    } else {
+      //window.location = '#ready';
+    }
+    
     getTopSongs(function(data_particles){
       console.log('particles',data_particles, _particles.size);
       
