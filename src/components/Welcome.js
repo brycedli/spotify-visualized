@@ -22,8 +22,8 @@ const Welcome = () => {
   const history = useHistory();
 
   function handleLogin() {
-    // history.push("/login");
-    window.location = '/login';
+    //history.push("/login");
+    window.location = CONNECTION_URL;
   }
   
   return (

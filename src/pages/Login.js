@@ -54,16 +54,15 @@ class LoginComponent extends Component {
 
   render(){
     return (
-        <p>
-          Login page
-          // <button onClick={onLogin}>
-        //     Connect spotify
-        // </button>
-        // <button onClick={this.test}>
-        //     add five particles
-        // </button>
-        </p>
-
+      <p>
+        Login page
+        <button onClick={onLogin}>
+          Connect spotify
+        </button>
+        <button onClick={this.test}>
+            add five particles
+        </button>
+      </p>
     )
   }
 }
