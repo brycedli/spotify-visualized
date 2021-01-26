@@ -1,7 +1,7 @@
 import { map } from "async";
 import { Component, createElement } from "react";
 import { connect } from 'react-redux'
-import Welcome from '../components/Welcome'
+import Welcome from './Welcome'
 
 class Home extends Component {
 

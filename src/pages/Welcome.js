@@ -2,23 +2,23 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import Grid from "@material-ui/core/Grid";
-import Headers from './Headers'
+import Headers from '../components/Headers'
 import { useHistory } from "react-router-dom";
 import {CONNECTION_URL, authenticateSpotify} from '../middleware/SpotifyApi'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  },
-}));
+// const useStyles = makeStyles((theme) => ({
+//   root: {
+//     flexGrow: 1,
+//   },
+//   paper: {
+//     padding: theme.spacing(2),
+//     textAlign: 'center',
+//     color: theme.palette.text.secondary,
+//   },
+// }));
 
 const Welcome = () => {
-  const classes = useStyles();
+  // const classes = useStyles();
   const history = useHistory();
 
   function handleLogin() {
@@ -36,7 +36,7 @@ const Welcome = () => {
       <Grid container spacing={3}>
         <Grid item xs>
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={3}>
           <Headers />
         </Grid>
       </Grid>

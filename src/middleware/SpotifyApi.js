@@ -57,8 +57,13 @@ export const getTopSongs =  (callback, url = url_top_song) => {
       return response.json();
   }).then(async (data)=> {
       //https://blog.scottlogic.com/2017/09/14/asynchronous-recursion.html
-      // console.log(data);
+      console.log(data);
       const particles = new Map();
+      if( data.items == null || data.items == undefined ){
+        console.log("item not found in spotify api response");
+        return;
+      }
+
       data.items.forEach(function(item, index, array) {
           var particle = new Particle();
           particle.addTrackData(item);

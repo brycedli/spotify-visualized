@@ -1,11 +1,14 @@
 import { map } from "async";
 import { Component, createElement } from "react";
+import Grid from "@material-ui/core/Grid";
+import Headers from '../components/Headers'
 import * as THREE from "three";
 import { connect } from 'react-redux'
 import { addParticles } from '../actions'
 import PropTypes from 'prop-types';
 import {CONNECTION_URL, authenticateSpotify, getTopSongs} from '../middleware/SpotifyApi'
-
+import ArtistList from '../components/ArtistList' 
+import {OrbitControls, renderRequested} from '../libs/OrbitControls'
 // var accessToken;
 // var hash = {};
 // var particles = new Map();
@@ -156,18 +159,47 @@ class Particle {
 
 }
 
-
-
 class ThreeJsComponent extends Component {
 
   constructor (props){
     super(props);
     this.particles = new Map();
+
+    this.renderRef = {
+      renderRequested:false,
+      controls: null,
+      renderer: null,
+      scene: null, 
+      camera: null, 
+      mount: null,
+      resizeRendererToDisplaySize:  (_this_renderer, _this_mount) => {
+        const _canvas = _this_renderer.domElement;
+        const _width = _this_mount.clientWidth;
+        const _height = _this_mount.clientHeight;
+        const _style_width = _this_mount.style.width;
+        const _style_height = _this_mount.style.height;
+        const needCanvasResize = _canvas.width !== _width || _canvas.height !== _height;
+        const needStyleResize = _canvas.style.width !== _style_width || _canvas.style.height !== _style_height;
+        
+        //console.log('canvas',_canvas, 'mount', _width,_height,'needResize(canvas,style)',needCanvasResize,needStyleResize);
+        if (needCanvasResize) {
+          _this_renderer.setSize(_width, _height, false);
+        }
+
+        if (needStyleResize) {
+          _canvas.style.width = _style_width;
+          _canvas.style.height = _style_height;
+        }
+        return needCanvasResize;
+      }
+    };
   }
+
   componentDidUpdate(preProp) {
     console.log('updated');
     this.handleUpdate();
   }
+
   renderParticle(particle){
     //do particle addition logic here, otherwise render.
     //1. create new sphere , set pos and size, color
@@ -178,8 +210,10 @@ class ThreeJsComponent extends Component {
     var cube = new THREE.Mesh(geometry, material);
     cube.position.x = Math.floor(Math.random() * 4);
     cube.position.y = Math.floor(Math.random() * 4);
-    this.scene.add(cube);
+    this.renderRef.scene.add(cube);
   }
+
+
   
   handleUpdate(){
     console.log(`render particle ${this.props.particles} in Visualize`);
@@ -196,7 +230,40 @@ class ThreeJsComponent extends Component {
     //https://github.com/brycedli/spotify-visualized/blob/aa9485c2b8b2a4f60869ac57ae89cd051da053bb/django-spotify/spotme/templates/spotme/visualize.html#L470
     console.log("rendered");
   }
+
+  requestRenderIfNotRequested() {
+    let _this_renderRef = this.renderRef;
+    let _this_updateRenderer = this.updateRenderer(_this_renderRef);
+    return () => {
+      //console.log ("renderRequested", _this_renderRef.renderRequested);
+      if (!_this_renderRef.renderRequested) {
+        _this_renderRef.renderRequested = true;
+        requestAnimationFrame(_this_updateRenderer);
+      }
+    }
+    
+  }
+  updateRenderer(
+    _this_renderRef
+    ) {
+
+    return ()=> {
+      // console.log("rendered", _this_renderRequested);
+      _this_renderRef.renderRequested = false;
+
+      if (_this_renderRef.resizeRendererToDisplaySize(_this_renderRef.renderer,_this_renderRef.mount )) {
+        const canvas = _this_renderRef.renderer.domElement;
+        _this_renderRef.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        _this_renderRef.camera.updateProjectionMatrix();
+    }
+    _this_renderRef.controls.update();
   
+    _this_renderRef.renderer.render(_this_renderRef.scene, _this_renderRef.camera);
+
+    }
+
+
+}
   componentDidMount(){
     //handle login redirect
     const _particles = this.particles;
@@ -206,12 +273,13 @@ class ThreeJsComponent extends Component {
     } else {
       //window.location = '#ready';
     }
-    
+    let _this = this;
     getTopSongs(function(data_particles){
       console.log('particles',data_particles, _particles.size);
       
       data_particles.forEach(function(value, key) {
         _particles.set(key, value);
+        _this.renderParticle(value);
       })
 
       
@@ -222,57 +290,80 @@ class ThreeJsComponent extends Component {
     });
     
 
-    this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(
+    this.renderRef.scene = new THREE.Scene();
+    this.renderRef.camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
     0.1,
     1000
     );
 
-    this.renderer = new THREE.WebGLRenderer();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    console.log(this.mount);
-    this.mount.appendChild(this.renderer.domElement);
+    this.renderRef.renderer = new THREE.WebGLRenderer();
+    this.renderRef.renderer.setSize(window.innerWidth, window.innerHeight);
+
+    console.log(this.renderRef.mount);
+    this.renderRef.mount.style.height = window.height - 200;
+    this.renderRef.mount.appendChild(this.renderRef.renderer.domElement);
+
+    this.renderRef.controls = new OrbitControls(this.renderRef.camera, this.renderRef.renderer.domElement);
+    this.renderRef.controls.zoomSpeed = 0.5;
+    // this.renderRef.controls.target.set(50, 50, 50);
+    this.renderRef.controls.update();
+
+    this.renderRef.controls.addEventListener('change', this.requestRenderIfNotRequested());
+    this.renderRef.controls.enableDamping = true;
+    this.renderRef.renderRequested = false;
+
+    //this.updateRenderer(this.renderRef);
+    this.requestRenderIfNotRequested()();
+    console.log(this.renderRef.controls);
 
     var geometry = new THREE.BoxGeometry(1, 1, 1);
     var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     var cube = new THREE.Mesh(geometry, material);
-    this.scene.add(cube);
+    this.renderRef.scene.add(cube);
 
-    this.camera.position.z = 5;
+    this.renderRef.camera.position.z = 5;
 
-    this.renderer.render(this.scene, this.camera);
-    var _renderer = this.renderer;
-    var _scene = this.scene;
-    var _camera = this.camera;
+    this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
+    var _this_renderRef = this.renderRef;
     var animate = function () {
       requestAnimationFrame( animate );
       cube.rotation.x += 0.01;
       cube.rotation.y += 0.01;
-      _renderer.render( _scene, _camera );
+      _this_renderRef.renderer.render( _this_renderRef.scene, _this_renderRef.camera );
     };
     animate();
   }
 
-  render(){
+  render(){    
     return (
-      <div>
-        <p>
-            Visualize stuff here
-        </p>
-        <p>
-          {/* particles: {this.props.particle} */}
-        </p>
-        {/* <ul>
-          {this.props.particles.map(p => (
-          <li>{p}</li>
-          ))}
-        </ul> */}
-        <div 
-            style={{ width: "800px", height: "800px" }}
-            ref={mount => { this.mount = mount}}
-        />
+      <div className="dark_mode">
+
+        <Grid container wrap="nowrap" spacing={0}>
+          <Grid item xs >
+            <h1 className="app_header">Your Spotify Musicscape</h1>
+          </Grid>
+          <Grid item xs={3}>
+            <Headers />
+          </Grid>
+        </Grid>
+        <Grid container wrap="nowrap" spacing={0}>
+          <Grid item xs={9} >
+            <div className="visualView"
+              ref={mount => { this.renderRef.mount = mount}}
+            >
+
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <ul className="listings">
+              <li>Artist List</li>  
+              <li>Song List</li>  
+            </ul>
+          </Grid>
+        </Grid>
+
       </div>
     )
   }
