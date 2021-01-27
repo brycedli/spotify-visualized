@@ -248,6 +248,7 @@ class ThreeJsComponent extends Component {
     ) {
 
     return ()=> {
+      console.log(_this_renderRef.camera.position);
       // console.log("rendered", _this_renderRequested);
       _this_renderRef.renderRequested = false;
 
@@ -275,7 +276,7 @@ class ThreeJsComponent extends Component {
     }
     let _this = this;
     getTopSongs(function(data_particles){
-      console.log('particles',data_particles, _particles.size);
+      // console.log('particles',data_particles, _particles.size);
       
       data_particles.forEach(function(value, key) {
         _particles.set(key, value);
@@ -291,12 +292,7 @@ class ThreeJsComponent extends Component {
     
 
     this.renderRef.scene = new THREE.Scene();
-    this.renderRef.camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-    );
+    this.renderRef.camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     this.renderRef.renderer = new THREE.WebGLRenderer();
     this.renderRef.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -305,9 +301,15 @@ class ThreeJsComponent extends Component {
     this.renderRef.mount.style.height = window.height - 200;
     this.renderRef.mount.appendChild(this.renderRef.renderer.domElement);
 
+    let initDist = 250;
+    this.renderRef.camera.position.x = 340;
+    this.renderRef.camera.position.y = 180;
+    this.renderRef.camera.position.z = 180;
+    this.renderRef.camera.lookAt(new THREE.Vector3(50,50,50));
+
     this.renderRef.controls = new OrbitControls(this.renderRef.camera, this.renderRef.renderer.domElement);
     this.renderRef.controls.zoomSpeed = 0.5;
-    // this.renderRef.controls.target.set(50, 50, 50);
+    this.renderRef.controls.target.set(50, 50, 50);
     this.renderRef.controls.update();
 
     this.renderRef.controls.addEventListener('change', this.requestRenderIfNotRequested());
@@ -318,12 +320,107 @@ class ThreeJsComponent extends Component {
     this.requestRenderIfNotRequested()();
     console.log(this.renderRef.controls);
 
+    var boxMesh = new THREE.Mesh(new THREE.BoxBufferGeometry(100, 100, 100));
+    boxMesh.position.x = 50;
+    boxMesh.position.y = 50;
+    boxMesh.position.z = 50;
+    var helper = new THREE.BoxHelper(boxMesh);
+    helper.material.color.setHex(0xFFFFFF);
+    helper.material.blending = THREE.AdditiveBlending;
+    helper.material.transparent = true;
+
+
+    this.renderRef.scene.add(helper);
+
     var geometry = new THREE.BoxGeometry(1, 1, 1);
     var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     var cube = new THREE.Mesh(geometry, material);
     this.renderRef.scene.add(cube);
+    const labelGeometry = new THREE.PlaneBufferGeometry(1, 1);
 
-    this.renderRef.camera.position.z = 5;
+    function makeLabelCanvas(size, name) {
+      const borderSize = 2;
+      const ctx = document.createElement('canvas').getContext('2d');
+      const font = `${size}px Arial`;
+      ctx.font = font;
+      // measure how long the name will be
+      const doubleBorderSize = borderSize * 2;
+      const width = ctx.measureText(name).width + doubleBorderSize;
+      const height = size + doubleBorderSize;
+      ctx.canvas.width = width;
+      ctx.canvas.height = height;
+      ctx.font = font;
+      ctx.textBaseline = 'middle';
+      ctx.translate(0, height / 2);      
+      ctx.fillStyle = 'white';
+      ctx.fillText(name, borderSize, borderSize);
+      
+      return ctx.canvas;
+    }
+
+    function addHelperLabel (content){
+      const canvas = makeLabelCanvas(32, content);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.minFilter = THREE.LinearFilter;
+      texture.wrapS = THREE.ClampToEdgeWrapping;
+      texture.wrapT = THREE.ClampToEdgeWrapping;
+
+      const labelMaterial = new THREE.MeshBasicMaterial({
+          map: texture,
+          transparent: true
+      });
+      const label = new THREE.Mesh(labelGeometry, labelMaterial);
+      const labelBaseScale = 0.1;
+      label.scale.x = canvas.width * labelBaseScale;
+      label.scale.y = canvas.height * labelBaseScale;
+
+      return label;
+    }
+
+    let xLabel = addHelperLabel("0 ⟵energy⟶ 100");
+    xLabel.position.x = 50;
+    xLabel.position.y = 10;
+    xLabel.position.z = 100;
+    this.renderRef.scene.add(xLabel);
+
+    let yLabel = addHelperLabel("0 ⟵valence⟶ 100");
+    yLabel.position.x = 10;
+    yLabel.position.y = 50;
+    yLabel.rotation.z = 3.141/2;
+    this.renderRef.scene.add(yLabel);
+
+    let zLabel = addHelperLabel("100 ⟵acousticness⟶ 0");
+    zLabel.position.x = 0;
+    zLabel.position.y = 10;
+    zLabel.position.z = 50;
+    zLabel.rotation.y = 3.141/2;
+    this.renderRef.scene.add(zLabel);
+
+    
+    let xLabelBack = addHelperLabel("100 ⟵energy⟶ 0");
+    xLabelBack.position.x = 50;
+    xLabelBack.position.y = 10;
+    xLabelBack.position.z = 100;
+    xLabelBack.rotation.y = -3.141;
+    this.renderRef.scene.add(xLabelBack);
+
+    let yLabelBack = addHelperLabel("0 ⟵valence⟶ 100");
+    yLabelBack.position.x = 10;
+    yLabelBack.position.y = 50;
+    yLabelBack.rotation.x = -3.141;
+    yLabelBack.rotation.z = -3.141/2;
+
+    this.renderRef.scene.add(yLabelBack);
+
+    let zLabelBack = addHelperLabel("0 ⟵acousticness⟶ 100");
+    zLabelBack.position.x = 0;
+    zLabelBack.position.y = 10;
+    zLabelBack.position.z = 50;
+    zLabelBack.rotation.y = -3.141/2;
+    // zLabelBack.rotation.y = -3.141/2;
+
+    this.renderRef.scene.add(zLabelBack);
+    // this.renderRef.camera.position.z = 5;
 
     this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
     var _this_renderRef = this.renderRef;
