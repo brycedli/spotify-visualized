@@ -205,12 +205,22 @@ class ThreeJsComponent extends Component {
     //1. create new sphere , set pos and size, color
     //2. create new 3d text, set anchor,size,content
     //3. this.renderer.add sphere and text
-    var geometry = new THREE.BoxGeometry(2, 0.5, 0.5);
-    var material = new THREE.MeshBasicMaterial({ color: 0x333300 });
-    var cube = new THREE.Mesh(geometry, material);
-    cube.position.x = Math.floor(Math.random() * 4);
-    cube.position.y = Math.floor(Math.random() * 4);
-    this.renderRef.scene.add(cube);
+    console.log(particle.trackData);
+    const pop = particle.trackData.popularity;
+    const size = particle.trackData.popularity/30;
+    var geometry = new THREE.SphereGeometry(size, Math.ceil(pop/20 + 5), Math.ceil(pop/20 + 5));
+    var col = new THREE.Color(particle.featureData.energy, particle.featureData.valence, particle.featureData.acousticness);
+
+    var material = new THREE.MeshBasicMaterial({ color: col });
+    var song = new THREE.Mesh(geometry, material);
+    song.position.x = particle.featureData.energy * 100;
+    song.position.y = particle.featureData.valence * 100;
+    song.position.z = particle.featureData.acousticness * 100;
+
+    this.renderRef.scene.add(song);
+    this.renderRef.controls.update();
+  
+    this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
   }
 
 
@@ -218,8 +228,9 @@ class ThreeJsComponent extends Component {
   handleUpdate(){
     console.log(`render particle ${this.props.particles} in Visualize`);
     const currentState = [];
+    console.log(this.props.particles);
     for (const p in this.props.particles){
-      //console.log(p);
+      console.log(p);
       this.renderParticle(p);
       this.particles.push(p);
     }
@@ -248,7 +259,7 @@ class ThreeJsComponent extends Component {
     ) {
 
     return ()=> {
-      console.log(_this_renderRef.camera.position);
+      // console.log(_this_renderRef.camera.position);
       // console.log("rendered", _this_renderRequested);
       _this_renderRef.renderRequested = false;
 
@@ -297,7 +308,7 @@ class ThreeJsComponent extends Component {
     this.renderRef.renderer = new THREE.WebGLRenderer();
     this.renderRef.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    console.log(this.renderRef.mount);
+    // console.log(this.renderRef.mount);
     this.renderRef.mount.style.height = window.height - 200;
     this.renderRef.mount.appendChild(this.renderRef.renderer.domElement);
 
@@ -332,10 +343,10 @@ class ThreeJsComponent extends Component {
 
     this.renderRef.scene.add(helper);
 
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
-    var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    var cube = new THREE.Mesh(geometry, material);
-    this.renderRef.scene.add(cube);
+    // var geometry = new THREE.BoxGeometry(1, 1, 1);
+    // var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    // var cube = new THREE.Mesh(geometry, material);
+    // this.renderRef.scene.add(cube);
     const labelGeometry = new THREE.PlaneBufferGeometry(1, 1);
 
     function makeLabelCanvas(size, name) {
@@ -424,13 +435,14 @@ class ThreeJsComponent extends Component {
 
     this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
     var _this_renderRef = this.renderRef;
-    var animate = function () {
-      requestAnimationFrame( animate );
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
-      _this_renderRef.renderer.render( _this_renderRef.scene, _this_renderRef.camera );
-    };
-    animate();
+    // var animate = function () {
+    //   requestAnimationFrame( animate );
+      
+    //   cube.rotation.x += 0.01;
+    //   cube.rotation.y += 0.01;
+    //   _this_renderRef.renderer.render( _this_renderRef.scene, _this_renderRef.camera );
+    // };
+    // animate();
   }
 
   render(){    

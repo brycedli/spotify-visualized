@@ -17,6 +17,7 @@ const MAX_SONGS = 400;
 const api_session = {};
 var api_session_ts = null;
 const url_top_song = 'https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=10'
+// const url_song_features = 
 
 export const CONNECTION_URL = API_URL + '/authorize?client_id=' + CLIENT_ID +
 '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
@@ -46,7 +47,7 @@ export const authenticateSpotify = (window_location)=>{
 const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const getTopSongs =  (callback, url = url_top_song) => {
-    
+  var currentBatch = new Map();
   fetch(url,{
       method: 'GET',
       headers:{
@@ -57,14 +58,14 @@ export const getTopSongs =  (callback, url = url_top_song) => {
       return response.json();
   }).then(async (data)=> {
       //https://blog.scottlogic.com/2017/09/14/asynchronous-recursion.html
-      console.log(data);
+      // console.log(data);
       const particles = new Map();
       if( data.items == null || data.items == undefined ){
         console.log("item not found in spotify api response");
         return;
       }
 
-      data.items.forEach(function(item, index, array) {
+      data.items.forEach(function(item) {
           var particle = new Particle();
           particle.addTrackData(item);
           // console.log(item.track.name, item.track.artists[0].name);
@@ -72,21 +73,51 @@ export const getTopSongs =  (callback, url = url_top_song) => {
               console.log("item not found in initial song loop");
           }
 
-          particles.set(item.id, particle);
+          // particles.set(item.id, particle);
+          currentBatch.set(item.id, particle);
+          
 
       })
-      // console.log(data.next, data.offset);
-      callback(particles);
+      //start getting features
+      var songIDsBatch = [];
+      //GET https://api.spotify.com/v1/audio-analysis/{id}
+      currentBatch.forEach(function (item, index, array) {
+        songIDsBatch.push(item.getTrackData().id);
+          // console.log(item.getTrackData().id); 
+      });
+      // console.log(songIDsBatch);
+      var featureURL = 'https://api.spotify.com/v1/audio-features?ids=' + songIDsBatch.join(",");
+      fetch(featureURL,{
+        method: 'GET',
+        headers:{
+            'Authorization' : 'Bearer ' + api_session.access_token,
+        },
 
+      }).then((response)=>{
+        return response.json();
+      }).then(async (data)=> {
 
-      //update view
-      //updateFunction
+        //https://blog.scottlogic.com/2017/09/14/asynchronous-recursion.html
+        // console.log(data);
+        // const particles = new Map();
+        if( data.audio_features == null || data.audio_features == undefined ){
+          console.log("item not found in spotify api response");
+          return;
+        }
 
-      // if (maxSongs > particles.size){
-      //     getTopSongs(data.next, callback);
+        data.audio_features.forEach(function(item, index, array) {
+          
+          var particleFromBatch = currentBatch.get(item.id);
+          particleFromBatch.addFeatureData(item);
+          particles.set(item.id, particleFromBatch);
+        })
 
-      // }
-      
+        callback(particles);
+
+        
+        
+      });
+
       if (data.next) {
         await wait(500);
         getTopSongs(callback, data.next);
