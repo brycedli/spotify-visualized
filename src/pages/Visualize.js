@@ -159,6 +159,17 @@ import {OrbitControls, renderRequested} from '../libs/OrbitControls'
 
 // }
 
+function minimize_exec(fn, ms) {
+  let timer
+  return _ => {
+    clearTimeout(timer)
+    timer = setTimeout(_ => {
+      timer = null
+      fn.apply(this, arguments)
+    }, ms)
+  };
+}
+
 class ThreeJsComponent extends Component {
 
   constructor (props){
@@ -193,6 +204,10 @@ class ThreeJsComponent extends Component {
         return needCanvasResize;
       }
     };
+    const _this_renderRef = this.renderRef;
+    const _this_updateRenderer = this.updateRenderer(_this_renderRef);
+    window.addEventListener('resize', minimize_exec(_this_updateRenderer, 1000));
+
   }
 
   componentDidUpdate(preProp) {
