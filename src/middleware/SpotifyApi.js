@@ -44,9 +44,45 @@ export const authenticateSpotify = (window_location)=>{
   }
 }
 
+function getFeatureData(callback, songs){
+  var featureURL = 'https://api.spotify.com/v1/audio-features?ids=' + songs.join(",");
+
+  console.log("Getting feature data for", songs.length, "songs");
+  fetch(featureURL,{
+    method: 'GET',
+    headers:{
+        'Authorization' : 'Bearer ' + api_session.access_token,
+    },
+
+  }).then((response)=>{
+    return response.json();
+  }).then(async (data)=> {
+
+    //https://blog.scottlogic.com/2017/09/14/asynchronous-recursion.html
+    // console.log(data);
+    // const particles = new Map();
+    if( data.audio_features == null || data.audio_features == undefined ){
+      console.log("item not found in spotify api response");
+      return;
+    }
+    callback(data.audio_features);
+    // data.audio_features.forEach(function(item, index, array) {
+      
+    //   var particleFromBatch = currentBatch.get(item.id);
+    //   particleFromBatch.addFeatureData(item);
+    //   particles.set(item.id, particleFromBatch);
+    // })
+
+    // callback(particles);
+
+    
+  });
+}
+
 const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const getTopSongs =  (callback, url = url_top_song) => {
+  // test();
   var currentBatch = new Map();
   fetch(url,{
       method: 'GET',
@@ -85,39 +121,20 @@ export const getTopSongs =  (callback, url = url_top_song) => {
         songIDsBatch.push(item.getTrackData().id);
           // console.log(item.getTrackData().id); 
       });
-      // console.log(songIDsBatch);
-      var featureURL = 'https://api.spotify.com/v1/audio-features?ids=' + songIDsBatch.join(",");
-      fetch(featureURL,{
-        method: 'GET',
-        headers:{
-            'Authorization' : 'Bearer ' + api_session.access_token,
-        },
 
-      }).then((response)=>{
-        return response.json();
-      }).then(async (data)=> {
-
-        //https://blog.scottlogic.com/2017/09/14/asynchronous-recursion.html
-        // console.log(data);
-        // const particles = new Map();
-        if( data.audio_features == null || data.audio_features == undefined ){
-          console.log("item not found in spotify api response");
-          return;
-        }
-
-        data.audio_features.forEach(function(item, index, array) {
+      function whenFeatureDone(audioFeatures){
+        audioFeatures.forEach(function(item, index, array) {
           
           var particleFromBatch = currentBatch.get(item.id);
           particleFromBatch.addFeatureData(item);
           particles.set(item.id, particleFromBatch);
-        })
-
+        });
         callback(particles);
+      }
+      getFeatureData(whenFeatureDone, songIDsBatch); //should callback whenFeatureDone when done getting features. good name haha
 
-        
-        
-      });
-
+      // console.log(songIDsBatch);
+      
       if (data.next) {
         await wait(500);
         getTopSongs(callback, data.next);

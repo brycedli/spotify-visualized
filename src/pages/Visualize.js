@@ -140,24 +140,24 @@ import {OrbitControls, renderRequested} from '../libs/OrbitControls'
 //     }
     
 // }
-class Particle {
-    // trackData;
-    // featureData;
-    addTrackData(trackData) {
-        this.trackData = trackData;
-    };
+// class Particle {
+//     // trackData;
+//     // featureData;
+//     addTrackData(trackData) {
+//         this.trackData = trackData;
+//     };
 
-    addFeatureData(featureData) {
-        this.featureData = featureData;
-    };
-    getTrackData(trackData) {
-        return this.trackData;
-    };
-    getFeatureData(featureData) {
-        return this.featureData;
-    };
+//     addFeatureData(featureData) {
+//         this.featureData = featureData;
+//     };
+//     getTrackData(trackData) {
+//         return this.trackData;
+//     };
+//     getFeatureData(featureData) {
+//         return this.featureData;
+//     };
 
-}
+// }
 
 class ThreeJsComponent extends Component {
 
@@ -205,7 +205,7 @@ class ThreeJsComponent extends Component {
     //1. create new sphere , set pos and size, color
     //2. create new 3d text, set anchor,size,content
     //3. this.renderer.add sphere and text
-    console.log(particle.trackData);
+    // console.log(particle.trackData);
     const pop = particle.trackData.popularity;
     const size = particle.trackData.popularity/30;
     var geometry = new THREE.SphereGeometry(size, Math.ceil(pop/20 + 5), Math.ceil(pop/20 + 5));
@@ -329,7 +329,7 @@ class ThreeJsComponent extends Component {
 
     //this.updateRenderer(this.renderRef);
     this.requestRenderIfNotRequested()();
-    console.log(this.renderRef.controls);
+    // console.log(this.renderRef.controls);
 
     var boxMesh = new THREE.Mesh(new THREE.BoxBufferGeometry(100, 100, 100));
     boxMesh.position.x = 50;
