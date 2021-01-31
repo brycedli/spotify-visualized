@@ -83,8 +83,42 @@ function getFeatureData(callback, songs){
 }
 
 const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
+function playlistContent(url, callbackPlaylist){ //initally called once per playlist, recurvsively calls itself every time it 
+  // console.log(url, callback);
+  fetch(url, {
+    method: 'GET',
+      headers:{
+          'Authorization' : 'Bearer ' + api_session.access_token,
+      },
+  }).then((response)=>{
+    return response.json();
+  }).then(async (data) => {
+    //fetched playlist metadata. contine recursively doing that.
+    if (data.items){
+      console.log("data items");
+      callbackPlaylist(data.items);
+    }
+    if (data.tracks){
+      console.log("data tracks");
+      callbackPlaylist(data.tracks.items);
+    }
+    // callback( data); //1 batch (~20 songs) of data.  
+
+
+    if (data.tracks && data.tracks.next){      
+      
+      await wait(500);
+      // getTopSongs(callback, data.next);
+      
+      // console.log("playlistContent", url, data.tracks.next);
+      playlistContent(data.tracks.next, callbackPlaylist);
+    }
+  });
+
+}
+
 export const getPlaylistSongs = (callback, url = url_playlists) => {
-  var playlistBatch = new Map();
+  
 
   fetch(url,{
     method: 'GET',
@@ -97,53 +131,23 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
     //https://blog.scottlogic.com/2017/09/14/asynchronous-recursion.html
     // console.log(data);
     // const particles = new Map();
+    const playlistBatch = new Map();
     if( data.items == null || data.items == undefined ){
       console.log("item not found in spotify api response");
       return;
     }
 
-    
-
-    function playlistContent(url, callbackPlaylist){ //initally called once per playlist, recurvsively calls itself every time it 
-      // console.log(url, callback);
-      fetch(url, {
-        method: 'GET',
-          headers:{
-              'Authorization' : 'Bearer ' + api_session.access_token,
-          },
-      }).then((response)=>{
-        return response.json();
-      }).then(async (data) => {
-        //fetched playlist metadata. contine recursively doing that.
-        if (data.items){
-          console.log("data items");
-          callbackPlaylist(data.items);
-        }
-        if (data.tracks){
-          console.log("data tracks");
-          callbackPlaylist(data.tracks.items);
-        }
-        // callback( data); //1 batch (~20 songs) of data.  
-
-
-        if (data.tracks && data.tracks.next){      
-          
-          await wait(500);
-          // getTopSongs(callback, data.next);
-          
-          // console.log("playlistContent", url, data.tracks.next);
-          playlistContent(data.tracks.next, callbackPlaylist);
-        }
-      });
-
-    }
     // console.log('playlists',data.items);
     data.items.forEach(function(item) { //iterate through every playlist
       // console.log("getting playlist:" , item);
       
-      playlistContent(url_playlistContent+item.id, function (songs) {
+      playlistContent(url_playlistContent+item.id, async function (songs) {
         // console.log(songs);
         songs.forEach(function(indivSong){//iterate through each song
+          if (indivSong.track == null) {
+            console.log('track',indivSong.track);
+            return;
+          }
           var particle = new Particle();
           particle.addTrackData(indivSong.track)
           playlistBatch.set(indivSong.track.id, particle);
@@ -151,18 +155,23 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
 
         var featureBundle = [];
         songs.forEach(function (song){
-          featureBundle.push(song.track.id);
+          if (song.track != null) {
+            featureBundle.push(song.track.id);
+          }
         })
-
-
-        getFeatureData(function (audioFeatures){
+        await wait(1000);
+        getFeatureData( function (audioFeatures){
           // console.log("feature", featureBundle, audioFeatures);
 
           audioFeatures.forEach(function(item, index, array) {
+            if (item == null) {
+              return;
+            }
             var particleFromBatch = playlistBatch.get(item.id);
             particleFromBatch.addFeatureData(item);
             playlistBatch.set(item.id, particleFromBatch);
           });
+          
           callback(playlistBatch);
         }, featureBundle);
         //This callback funciton may be called multiple times per playlist. callback called with json playlist.tracks->trackdata from playlist.
@@ -226,7 +235,7 @@ export const getTopSongs =  (callback, url = url_top_song) => {
       return response.json();
   }).then(async (data)=> {
       //https://blog.scottlogic.com/2017/09/14/asynchronous-recursion.html
-      // console.log(data);
+      console.log(data);
       const particles = new Map();
       if( data.items == null || data.items == undefined ){
         console.log("item not found in spotify api response");

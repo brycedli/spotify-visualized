@@ -229,8 +229,9 @@ class ThreeJsComponent extends Component {
     const size = particle.trackData.popularity/30;
     var geometry = new THREE.SphereGeometry(size, Math.ceil(pop/20 + 5), Math.ceil(pop/20 + 5));
     if (!particle.featureData){
+      // console.log("no feature data, ",particle);
+      return;
     }
-    console.log("no feature data, ",particle);
 
     var col = new THREE.Color(particle.featureData.energy, particle.featureData.valence, particle.featureData.acousticness);
 
@@ -322,12 +323,13 @@ class ThreeJsComponent extends Component {
 
         // });
     });
+
     getPlaylistSongs(function(data_particles){
       data_particles.forEach(function(value, key) {
         _particles.set(key, value);
         _this.renderParticle(value);
       })
-    })
+    });
 
     this.renderRef.scene = new THREE.Scene();
     this.renderRef.camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 1000);

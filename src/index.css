@@ -38,7 +38,7 @@ h1.app_header {
   /* font-weight: bold; */
   font-size: 14px;
   line-height: 14px;
-  padding-inline: 30px 0px;
+  /* padding-inline: 30px 0px; */
   text-decoration: none;
   white-space: nowrap;
 }
@@ -68,6 +68,9 @@ div.welcome {
   div.welcome {
     width: 578px;
   }
+  #menu_links a{
+    padding-inline: 30px 0px;
+  }
 }
 
 @media screen and (max-width: 600px) {
@@ -78,8 +81,11 @@ div.welcome {
   div.welcome {
     width: 400px;
   }
+  #menu_links a{
+    padding-inline: 0px 30px;
+  }
 }
-@media screen and (max-width: 500px) {
+/* @media screen and (max-width: 500px) {
   h1.welcome {
     font-size: 48px;
     line-height: 52px;
@@ -87,14 +93,14 @@ div.welcome {
   div.welcome {
     width: 300px;
   }
-  
+
   #menu_links{
     text-align: start;
   }
   #menu_links a{
-    padding-inline: 0px 0px;
+    padding-inline: 0px 30px;
   }
-}
+} */
 
 h1.welcome {
   font-weight: bold;
