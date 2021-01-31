@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import {CONNECTION_URL, authenticateSpotify, getTopSongs} from '../middleware/SpotifyApi'
 import ArtistList from '../components/ArtistList' 
 import {OrbitControls, renderRequested} from '../libs/OrbitControls'
+
 // var accessToken;
 // var hash = {};
 // var particles = new Map();
@@ -184,6 +185,9 @@ class ThreeJsComponent extends Component {
       camera: null, 
       mount: null,
       resizeRendererToDisplaySize:  (_this_renderer, _this_mount) => {
+        if (_this_mount == null) {
+          return;
+        }
         const _canvas = _this_renderer.domElement;
         const _width = _this_mount.clientWidth;
         const _height = _this_mount.clientHeight;
@@ -206,7 +210,7 @@ class ThreeJsComponent extends Component {
     };
     const _this_renderRef = this.renderRef;
     const _this_updateRenderer = this.updateRenderer(_this_renderRef);
-    window.addEventListener('resize', minimize_exec(_this_updateRenderer, 1000));
+    window.addEventListener('resize', minimize_exec(_this_updateRenderer, 200));
 
   }
 
@@ -464,25 +468,25 @@ class ThreeJsComponent extends Component {
     return (
       <div className="dark_mode">
 
-        <Grid container wrap="nowrap" spacing={0}>
-          <Grid item xs >
+        <Grid container spacing={0} style={{padding: 33}}>
+          <Grid item sm={6}  xs={12} >
             <h1 className="app_header">Your Spotify Musicscape</h1>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item sm={6}  xs={12}>
             <Headers />
           </Grid>
         </Grid>
-        <Grid container wrap="nowrap" spacing={0}>
-          <Grid item xs={9} >
+        <Grid container spacing={0}>
+          <Grid item sm={9} xs={12}>
             <div className="visualView"
               ref={mount => { this.renderRef.mount = mount}}
             >
 
             </div>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item sm={3} xs={12}>
             <ul className="listings">
-              <li>Artist List</li>  
+              <li><ArtistList/></li>  
               <li>Song List</li>  
             </ul>
           </Grid>

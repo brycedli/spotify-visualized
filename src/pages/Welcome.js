@@ -33,10 +33,10 @@ const Welcome = () => {
         backgroundImage: 'url(/welcome-bg.png)'
       }}
     >
-      <Grid container spacing={3}>
+      <Grid container spacing={0} style={{padding: 33}}>
         <Grid item xs>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item sm={6}>
           <Headers />
         </Grid>
       </Grid>
