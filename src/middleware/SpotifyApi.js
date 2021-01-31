@@ -130,6 +130,7 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
       playlistContent(url_playlistContent+item.id, function (items) {
         //This callback funciton may be called multiple times per playlist. callback called with json playlist.tracks->trackdata from playlist.
         console.log(items);
+        
         var particle = new Particle();
         particle.addTrackData(item);
         if(!item){
