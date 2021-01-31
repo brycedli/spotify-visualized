@@ -19,16 +19,25 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+h1.app_header {
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 24px;
+  color: white;
+  margin: 0px 0px 12px 0px;
+}
+
 #menu_links{
   text-align: end;
-  padding: 33px 33px 0 0;
+  padding: 0px;
 }
 
 #menu_links a{
   color: white;
   /* font-weight: bold; */
   font-size: 14px;
-  line-height: 0px;
+  line-height: 14px;
   padding-inline: 30px 0px;
   text-decoration: none;
   white-space: nowrap;
@@ -51,7 +60,7 @@ div.welcome {
   padding: 0 0 100px 0;
 }
 
-@media screen and (min-width: 700px) {
+@media screen and (min-width: 600px) {
   h1.welcome {
     font-size: 96px;
     line-height: 100px;
@@ -61,7 +70,7 @@ div.welcome {
   }
 }
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 600px) {
   h1.welcome {
     font-size: 64px;
     line-height: 68px;
@@ -77,6 +86,13 @@ div.welcome {
   }
   div.welcome {
     width: 300px;
+  }
+  
+  #menu_links{
+    text-align: start;
+  }
+  #menu_links a{
+    padding-inline: 0px 0px;
   }
 }
 
@@ -97,19 +113,31 @@ div.dark_mode{
   width: 100%;
   height: 100vh;
   background-color: #000;
+  flex-grow: 1;
 }
 
-h1.app_header {
-  font-weight: bold;
-  font-size: 24px;
-  color: white;
+
+
+@media screen and (min-width: 600px) {
+  div.visualView {
+    height: calc(100vw - 340px);
+    width: calc(100vw - 340px);
+  }
 }
+
+@media screen and (max-width: 600px) {
+  div.visualView {
+    height: calc(100vw - 20px);
+    width: calc(100vw - 20px);
+  }
+}
+
 
 div.visualView {
+  flex-grow: 1;
   background-color: #000;
-  overflow: hidden;
-  height: calc(100vh - 66px);
-  width: calc(100vw - 344px);
+  margin:10px
+  /* overflow: hidden; */
 }
 
 ul.listings {

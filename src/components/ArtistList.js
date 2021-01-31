@@ -1,38 +1,71 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Todo from './Artist'
+import Artist from './Artist'
 
-const ArtistList = ({ artists, toggleFullList }) => (
-  <div>
-    <div>
-      Your Top Artists
-    </div>
-    {/* <ul>
-      {artists.map(artist =>
-        <Artist
-          key={artist.id}
-          {...artist}
-          onClick={() => toggleFullList()}
-        />
-      )}
-    </ul> */}
-    <div>
-      <span>
-        SEE MORE ARTISTS
-      </span>
-    </div>
-  </div>
-  
-)
+
+class ArtistList extends React.Component {
+
+  render() {
+    const { artists, toggleFullList } = this.props;
+
+    return (
+      <div>
+        <div>
+          Your Top Artists
+        </div>
+        <ul>
+          {artists.map(artist =>
+            <Artist
+              key={artist.id}
+              {...artist}
+              // onClick={() => toggleFullList()}
+            />
+          )}
+        </ul>
+        <div>
+          <span>
+            SEE MORE ARTISTS
+          </span>
+        </div>
+      </div>
+    )
+  }
+}
 
 ArtistList.propTypes = {
-  artists: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    url: PropTypes.string.isRequired,
-    genre: PropTypes.string.isRequired
-  }).isRequired).isRequired,
-  toggleFullList: PropTypes.func.isRequired
+  artists: PropTypes.array.isRequired,
+  toggleFullList: PropTypes.bool.isRequired
 }
+
+ArtistList.defaultProps = {
+  artists: [
+    {
+      id: 'a1',
+      name: 'Kero Kero Bonito',
+      thumbnail_url: 'https://url',
+      genre: 'Electric pop, Indie, Future Bass'
+    },
+    {
+      id: 'a2',
+      name: 'Nirvana',
+      thumbnail_url: 'https://url',
+      genre: 'Punk Rock, Grunge'
+    },
+    {
+      id: 'a3',
+      name: 'Playboi Carti',
+      thumbnail_url: 'https://url',
+      genre: 'Cloud rap, Trap, Hip-Hop/Rap'
+    },
+    {
+      id: 'a4',
+      name: 'Pixies',
+      thumbnail_url: 'https://url',
+      genre: 'Indie, Punk Rock, Grunge'
+    }
+  ],
+  toggleFullList: false
+}
+
 
 export default ArtistList

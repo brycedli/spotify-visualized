@@ -1,4 +1,4 @@
-import { createMuiTheme }  from '@material-ui/core/styles'
+import { createMuiTheme, makeStyles }  from '@material-ui/core/styles'
 import {grey, lightGreen,purple} from "@material-ui/core/colors";
 
 const theme = createMuiTheme({
@@ -24,7 +24,9 @@ const theme = createMuiTheme({
   root: {
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center"
+    justifyContent: "center",
+    flexGrow: 1
   },
-})
+});
+
 export default theme
