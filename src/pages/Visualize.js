@@ -228,6 +228,10 @@ class ThreeJsComponent extends Component {
     const pop = particle.trackData.popularity;
     const size = particle.trackData.popularity/30;
     var geometry = new THREE.SphereGeometry(size, Math.ceil(pop/20 + 5), Math.ceil(pop/20 + 5));
+    if (!particle.featureData){
+    }
+    console.log("no feature data, ",particle);
+
     var col = new THREE.Color(particle.featureData.energy, particle.featureData.valence, particle.featureData.acousticness);
 
     var material = new THREE.MeshBasicMaterial({ color: col });
@@ -321,7 +325,7 @@ class ThreeJsComponent extends Component {
     getPlaylistSongs(function(data_particles){
       data_particles.forEach(function(value, key) {
         _particles.set(key, value);
-        _this.renderValue(value);
+        _this.renderParticle(value);
       })
     })
 

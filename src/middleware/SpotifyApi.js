@@ -104,8 +104,8 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
 
     
 
-    function playlistContent(url, callback){ //initally called once per playlist, recurvsively calls itself every time it 
-      console.log(url, callback);
+    function playlistContent(url, callbackPlaylist){ //initally called once per playlist, recurvsively calls itself every time it 
+      // console.log(url, callback);
       fetch(url, {
         method: 'GET',
           headers:{
@@ -115,28 +115,87 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
         return response.json();
       }).then(async (data) => {
         //fetched playlist metadata. contine recursively doing that.
-        
-        callback(data); //1 batch (~20 songs) of data.  
+        if (data.items){
+          console.log("data items");
+          callbackPlaylist(data.items);
+        }
+        if (data.tracks){
+          console.log("data tracks");
+          callbackPlaylist(data.tracks.items);
+        }
+        // callback( data); //1 batch (~20 songs) of data.  
 
-        if (data.next){ 
-          playlistContent(data.next, callback);
+
+        if (data.tracks && data.tracks.next){      
+          
+          await wait(500);
+          // getTopSongs(callback, data.next);
+          
+          // console.log("playlistContent", url, data.tracks.next);
+          playlistContent(data.tracks.next, callbackPlaylist);
         }
       });
 
     }
-    console.log('playlists',data.items);
+    // console.log('playlists',data.items);
     data.items.forEach(function(item) { //iterate through every playlist
       // console.log("getting playlist:" , item);
-      playlistContent(url_playlistContent+item.id, function (items) {
+      
+      playlistContent(url_playlistContent+item.id, function (songs) {
+        // console.log(songs);
+        songs.forEach(function(indivSong){//iterate through each song
+          var particle = new Particle();
+          particle.addTrackData(indivSong.track)
+          playlistBatch.set(indivSong.track.id, particle);
+        })
+
+        var featureBundle = [];
+        songs.forEach(function (song){
+          featureBundle.push(song.track.id);
+        })
+
+
+        getFeatureData(function (audioFeatures){
+          // console.log("feature", featureBundle, audioFeatures);
+
+          audioFeatures.forEach(function(item, index, array) {
+            var particleFromBatch = playlistBatch.get(item.id);
+            particleFromBatch.addFeatureData(item);
+            playlistBatch.set(item.id, particleFromBatch);
+          });
+          callback(playlistBatch);
+        }, featureBundle);
         //This callback funciton may be called multiple times per playlist. callback called with json playlist.tracks->trackdata from playlist.
-        console.log(items);
+        // if (items.items){//pretty sure this is the next function
+        //   console.log("this item has items for some reason", items);
+        //   items.items.forEach(function(trackItem){
+        //     var particle = new Particle();
+        //     particle.addTrackData(trackItem);
+        //     if(!trackItem){
+        //       console.log("item not found in initial song loop");
+        //     }
+        //     playlistBatch.set(trackItem.id, particle);
+  
+        //   })
+        // }
+        // if (items.tracks){
+        //   console.log("this item has tracks for some reason", items);
+        //   items.tracks.items.forEach(function(trackItem){
+        //     var particle = new Particle();
+        //     particle.addTrackData(trackItem);
+        //     if(!trackItem){
+        //       console.log("item not found in initial song loop");
+        //     }
+        //     playlistBatch.set(trackItem.id, particle);
+  
+        //   })
+        // }
+
+        // callback(playlistBatch);
+
+        // console.log(items.items);
         
-        var particle = new Particle();
-        particle.addTrackData(item);
-        if(!item){
-          console.log("item not found in initial song loop");
-        }
-        playlistBatch.set(item.id, particle);
+        
         // var trackCombined = '';
         // items.tracks.forEach(function(song){
         //   trackCombined = trackCombined + song.id;
@@ -145,7 +204,7 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
       });
       // console.log(playlistBatch);
 
-      callback(playlistBatch);
+      // callback(playlistBatch);
     })
     
     if (data.next) {
