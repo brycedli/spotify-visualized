@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { connect } from 'react-redux'
 import { addParticles } from '../actions'
 import PropTypes from 'prop-types';
-import {CONNECTION_URL, authenticateSpotify, getTopSongs} from '../middleware/SpotifyApi'
+import {CONNECTION_URL, authenticateSpotify, getTopSongs, getPlaylistSongs} from '../middleware/SpotifyApi'
 import ArtistList from '../components/ArtistList' 
 import {OrbitControls, renderRequested} from '../libs/OrbitControls'
 // var accessToken;
@@ -237,7 +237,6 @@ class ThreeJsComponent extends Component {
     
     this.renderer.render(this.scene, this.camera);
     console.log('rendered', this.particles);
-    //somehow add orbit control js, which allow drag to rotate camera
     //https://github.com/brycedli/spotify-visualized/blob/aa9485c2b8b2a4f60869ac57ae89cd051da053bb/django-spotify/spotme/templates/spotme/visualize.html#L470
     console.log("rendered");
   }
@@ -300,7 +299,12 @@ class ThreeJsComponent extends Component {
 
         // });
     });
-    
+    getPlaylistSongs(function(data_particles){
+      data_particles.forEach(function(value, key) {
+        _particles.set(key, value);
+        _this.renderValue(value);
+      })
+    })
 
     this.renderRef.scene = new THREE.Scene();
     this.renderRef.camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 1000);
