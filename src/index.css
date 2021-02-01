@@ -126,8 +126,8 @@ div.dark_mode{
 
 @media screen and (min-width: 600px) {
   div.visualView {
-    height: calc(100vw - 340px);
-    width: calc(100vw - 340px);
+    height: calc(100vw - 320px);
+    width: calc(100vw - 320px);
   }
 }
 
@@ -142,12 +142,74 @@ div.dark_mode{
 div.visualView {
   flex-grow: 1;
   background-color: #000;
-  margin:10px
+  margin:10px;
   /* overflow: hidden; */
 }
 
-ul.listings {
+ul.listings, li.listings {
   background-color: #000;
   color: white;
   font-size: 13px;
+  list-style-type: none;
+  list-style-position: inside;
+  padding-left: 0;
+  width: 300px;
+  margin-block-start: 0;
+}
+
+div.listingpanel {
+  margin-bottom: 20px;
+}
+
+div.listings {
+  height: 40vh;
+  overflow: hidden;
+  padding: 0px 20px;
+}
+
+h1.listings {
+  font-size: 15px;
+  font-weight: bolder;
+  line-height: 15px;
+  color: white;
+  margin-block-start: 0em;
+  /* margin-bottom: 24px; */
+  padding-inline: 20px 0px;
+}
+
+h1.listitem {
+  font-size: 13px;
+  font-weight: normal;
+  /* line-height: 13px; */
+  color: white;
+  margin-block-start: 0px;
+  margin-block-end: 0px;
+}
+
+h2.listitem {
+  font-size: 13px;
+  font-weight: normal;
+  /* line-height: 13px; */
+  color: #737373;
+  margin-block-start: 0px;
+  margin-block-end: 0px;
+}
+
+div.listSeeMore {
+  text-align: center;
+  margin-top: -40px;
+  position:relative;
+}
+
+div.listSeeMoreMask {
+  width: 300px;
+  height: 40px;
+  background: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0));
+  position:relative;
+}
+span.listSeeMore {
+  font-size: 10px;
+  font-weight: bold;
+  margin-top: -6px;
+  display: inline-block;
 }
