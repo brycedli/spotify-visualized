@@ -1,4 +1,6 @@
 import React from 'react'
+import { connect } from 'react-redux'
+import { expendList } from '../actions'
 import PropTypes from 'prop-types'
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Song from './Song'
@@ -14,7 +16,10 @@ class SongList extends React.Component {
         <div>
           <h1 className="listings">Your Top Songs</h1>
         </div>
-        <div className="listings_min">
+        <div 
+        className={toggleFullList ? 'listings_max' : 'listings_min'
+        }
+        >
           <ul className="listings">
             {songs.map(song =>
               <Song
@@ -28,13 +33,20 @@ class SongList extends React.Component {
 
         <div className='listSeeMore'>
           <div className='listSeeMoreMask'></div>
-          <span className='listSeeMore'>
-            SEE MORE SONGS
-          </span>
-          <br />
-          <span className='listSeeMore'>
-            <ExpandMore />
-          </span>
+          <div className='listSeeMoreButton'
+          onClick={e => {
+            console.log("Clicked");
+            this.props.dispatch(expendList('SONG'));
+            }}
+          >
+            <span className='listSeeMore'>
+              SEE MORE SONGS
+            </span>
+            <br />
+            <span className='listSeeMore'>
+              <ExpandMore />
+            </span>
+          </div>
         </div>
       </div>
     )
@@ -82,5 +94,12 @@ SongList.defaultProps = {
   toggleFullList: false
 }
 
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
+    toggleFullList: state.expendList == 'SONG'
+  };
+}
 
-export default SongList
+export default connect(mapStateToProps /*,mapDispatchToProps*/)(SongList) 
+

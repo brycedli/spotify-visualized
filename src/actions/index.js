@@ -15,4 +15,9 @@ export const addPlaylists = playlists => ({
   playlists
 })
 
+export const expendList = expendList => ({
+  type: 'TOGGLE_LIST',
+  expendList
+})
+
 

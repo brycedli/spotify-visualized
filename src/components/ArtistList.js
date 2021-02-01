@@ -1,4 +1,7 @@
 import React from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import { expendList } from '../actions'
 import PropTypes from 'prop-types'
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Artist from './Artist'
@@ -14,7 +17,9 @@ class ArtistList extends React.Component {
         <div>
           <h1 className="listings">Your Top Artists</h1>
         </div>
-        <div className="listings_max">
+        <div 
+        className={toggleFullList ? 'listings_max' : 'listings_min'
+        }>
           <ul className="listings">
             {artists.map(artist =>
               <Artist
@@ -28,13 +33,20 @@ class ArtistList extends React.Component {
 
         <div className='listSeeMore'>
           <div className='listSeeMoreMask'></div>
-          <span className='listSeeMore'>
-            SEE MORE ARTISTS
-          </span>
-          <br />
-          <span className='listSeeMore'>
-            <ExpandMore />
-          </span>
+          <div className='listSeeMoreButton'
+          onClick={e => {
+            console.log("Clicked");
+            this.props.dispatch(expendList('ARTIST'));
+            }}
+          >
+            <span className='listSeeMore'>
+              SEE MORE ARTISTS
+            </span>
+            <br />
+            <span className='listSeeMore'>
+              <ExpandMore />
+            </span>
+          </div>
         </div>
       </div>
     )
@@ -97,8 +109,21 @@ ArtistList.defaultProps = {
       genre: 'Indie, Punk Rock, Grunge'
     }
   ],
-  toggleFullList: false
+  toggleFullList: true
 }
 
+const mapStateToProps = (state) => {
+  console.log('state',state);
+  return {
+    toggleFullList: state.expendList == 'ARTIST' || state.expendList == null
+  };
+}
 
-export default ArtistList
+// const mapDispatchToProps = dispatch => {
+//   console.log('mapDispatchToProps called');
+//   return {
+//     expendList: toggleFullList => dispatch(toggleFullList?'ARTIST':'')
+//   };
+// }
+
+export default connect(mapStateToProps /*,mapDispatchToProps*/)(ArtistList) 
