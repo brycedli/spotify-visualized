@@ -29,6 +29,7 @@ class ThreeJsComponent extends Component {
   constructor (props){
     super(props);
     this.particles = new Map();
+    console.log("particles map created", this.particles);
 
     this.renderRef = {
       renderRequested:false,
@@ -73,14 +74,24 @@ class ThreeJsComponent extends Component {
   }
 
   renderParticle(particle){
+    console.log("prop particles");
+
+    // let _particles = this.props.particles;
+    // if(!_particles.get(particle.trackData.id)){
+    //   this.props.particles.set(particle.trackData.id, particle);
+    // }else{
+    //   console.log("duplicate");
+    //   return;
+    // }
+    // console.log(this.props.particles.length);
     //do particle addition logic here, otherwise render.
     //1. create new sphere , set pos and size, color
     //2. create new 3d text, set anchor,size,content
     //3. this.renderer.add sphere and text
     // console.log(particle.trackData);
-    const pop = particle.trackData.popularity;
+    const pop = particle.trackData.popularity + 1;
     const size = particle.trackData.popularity/30;
-    var geometry = new THREE.SphereGeometry(size, Math.ceil(pop/20 + 5), Math.ceil(pop/20 + 5));
+    var geometry = new THREE.SphereGeometry(1, 10, 10);
     if (!particle.featureData){
       // console.log("no feature data, ",particle);
       return;
@@ -105,7 +116,7 @@ class ThreeJsComponent extends Component {
   handleUpdate(){
     console.log(`render particle ${this.props.particles} in Visualize`);
     const currentState = [];
-    console.log(this.props.particles);
+    // console.log(this.particles);
     for (const p in this.props.particles){
       console.log(p);
       this.renderParticle(p);
@@ -166,6 +177,10 @@ class ThreeJsComponent extends Component {
       // console.log('particles',data_particles, _particles.size);
       
       data_particles.forEach(function(value, key) {
+        if(_particles.get(key, value)){
+          console.log("skipped");
+          return;
+        }
         _particles.set(key, value);
         _this.renderParticle(value);
       })
@@ -179,6 +194,10 @@ class ThreeJsComponent extends Component {
 
     getPlaylistSongs(function(data_particles){
       data_particles.forEach(function(value, key) {
+        if(_particles.get(key, value)){
+          console.log("skipped");
+          return;
+        }
         _particles.set(key, value);
         _this.renderParticle(value);
       })

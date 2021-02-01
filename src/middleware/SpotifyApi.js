@@ -69,6 +69,13 @@ function getFeatureData(callback, songs){
       return;
     }
     callback(data.audio_features);
+    // console.log(data);
+    // if (data.next) {
+    //   console.log("more songs");
+
+    //   await wait(500);
+    //   // getFeatureData(callback, data.next);
+    // }
     // data.audio_features.forEach(function(item, index, array) {
       
     //   var particleFromBatch = currentBatch.get(item.id);
@@ -98,7 +105,7 @@ function playlistContent(url, callbackPlaylist){ //initally called once per play
       console.log("data items");
       callbackPlaylist(data.items);
     }
-    if (data.tracks){
+    else if (data.tracks){
       console.log("data tracks");
       callbackPlaylist(data.tracks.items);
     }
@@ -107,7 +114,7 @@ function playlistContent(url, callbackPlaylist){ //initally called once per play
 
     if (data.tracks && data.tracks.next){      
       
-      await wait(500);
+      await wait(50);
       // getTopSongs(callback, data.next);
       
       // console.log("playlistContent", url, data.tracks.next);
@@ -141,7 +148,7 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
     data.items.forEach(function(item) { //iterate through every playlist
       // console.log("getting playlist:" , item);
       
-      playlistContent(url_playlistContent+item.id, async function (songs) {
+      playlistContent(url_playlistContent+item.id,  function (songs) {
         // console.log(songs);
         songs.forEach(function(indivSong){//iterate through each song
           if (indivSong.track == null) {
@@ -159,7 +166,7 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
             featureBundle.push(song.track.id);
           }
         })
-        await wait(1000);
+        // await wait(500);
         getFeatureData( function (audioFeatures){
           // console.log("feature", featureBundle, audioFeatures);
 
