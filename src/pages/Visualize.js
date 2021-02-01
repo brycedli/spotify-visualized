@@ -348,10 +348,22 @@ class ThreeJsComponent extends Component {
             </div>
           </Grid>
           <Grid item >
-            <ul className="listings" >
+            <div className="listpanelcontainer">
+              <Grid container direction="column" spacing={0} style={{padding: 0}}>
+                <Grid item >
+                  <ArtistList/>
+                </Grid>
+                <Grid item >
+                  <SongList/>
+                </Grid>
+              </Grid>
+            </div>
+            
+
+            {/* <ul className="listings" >
               <li><ArtistList/></li>  
               <li><SongList/></li>  
-            </ul>
+            </ul> */}
           </Grid>
         </Grid>
 

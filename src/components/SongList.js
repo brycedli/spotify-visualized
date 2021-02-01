@@ -14,7 +14,7 @@ class SongList extends React.Component {
         <div>
           <h1 className="listings">Your Top Songs</h1>
         </div>
-        <div className="listings">
+        <div className="listings_min">
           <ul className="listings">
             {songs.map(song =>
               <Song

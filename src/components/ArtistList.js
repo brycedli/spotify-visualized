@@ -14,7 +14,7 @@ class ArtistList extends React.Component {
         <div>
           <h1 className="listings">Your Top Artists</h1>
         </div>
-        <div className="listings">
+        <div className="listings_max">
           <ul className="listings">
             {artists.map(artist =>
               <Artist
