@@ -21,6 +21,7 @@ const url_top_song = 'https://api.spotify.com/v1/me/top/tracks?time_range=long_t
 // const url_song_features = 
 const url_playlists = 'https://api.spotify.com/v1/me/playlists';
 const url_playlistContent = 'https://api.spotify.com/v1/playlists/';
+const url_artist = 'https://api.spotify.com/v1/artists';
 
 export const CONNECTION_URL = API_URL + '/authorize?client_id=' + CLIENT_ID +
 '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
@@ -126,7 +127,9 @@ function playlistContent(url, callbackPlaylist){ //initally called once per play
 
 export const getPlaylistSongs = (callback, url = url_playlists) => {
   
-
+  const MAX_PL_BATCH = 10;
+  const MAX_PL_CONTENT_BATCH = 10;
+  let playlistBatchCnt = 0;
   fetch(url,{
     method: 'GET',
       headers:{
@@ -143,11 +146,14 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
       console.log("item not found in spotify api response");
       return;
     }
-
+    let playlistContentBatchCnt = 0;
     // console.log('playlists',data.items);
     data.items.forEach(function(item) { //iterate through every playlist
       // console.log("getting playlist:" , item);
-      
+      if (playlistContentBatchCnt > MAX_PL_CONTENT_BATCH) {
+        return;
+      }
+      playlistContentBatchCnt += 1;
       playlistContent(url_playlistContent+item.id,  function (songs) {
         // console.log(songs);
         songs.forEach(function(indivSong){//iterate through each song
@@ -169,7 +175,7 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
         // await wait(500);
         getFeatureData( function (audioFeatures){
           // console.log("feature", featureBundle, audioFeatures);
-
+          const playlistCallbackBatch = new Map();
           audioFeatures.forEach(function(item, index, array) {
             if (item == null) {
               return;
@@ -177,9 +183,11 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
             var particleFromBatch = playlistBatch.get(item.id);
             particleFromBatch.addFeatureData(item);
             playlistBatch.set(item.id, particleFromBatch);
+            playlistCallbackBatch.set(item.id, particleFromBatch);
+            
           });
-          
-          callback(playlistBatch);
+          callback(playlistCallbackBatch);
+          // callback(playlistBatch);
         }, featureBundle);
         //This callback funciton may be called multiple times per playlist. callback called with json playlist.tracks->trackdata from playlist.
         // if (items.items){//pretty sure this is the next function
@@ -222,8 +230,9 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
 
       // callback(playlistBatch);
     })
-    
-    if (data.next) {
+    playlistBatchCnt += 1;
+    console.log('playlistBatchCnt',playlistBatchCnt, 'MAX_PL_BATCH',MAX_PL_BATCH);
+    if (data.next && playlistBatchCnt < MAX_PL_BATCH) {
       await wait(500);
       getPlaylistSongs(callback, data.next);
     }
@@ -242,7 +251,7 @@ export const getTopSongs =  (callback, url = url_top_song) => {
       return response.json();
   }).then(async (data)=> {
       //https://blog.scottlogic.com/2017/09/14/asynchronous-recursion.html
-      console.log(data);
+      //console.log(data);
       const particles = new Map();
       if( data.items == null || data.items == undefined ){
         console.log("item not found in spotify api response");
@@ -287,5 +296,28 @@ export const getTopSongs =  (callback, url = url_top_song) => {
         await wait(500);
         getTopSongs(callback, data.next);
       }
+  });
+}
+
+
+export const getArtists = (callback, artists) => {
+  var artistsURL = url_artist + '?ids=' + artists.join(",");
+  console.log('artists',artists);
+  console.log("Getting artist data for", artists.length, "artists");
+  fetch(artistsURL,{
+    method: 'GET',
+    headers:{
+        'Authorization' : 'Bearer ' + api_session.access_token,
+    },
+
+  }).then((response)=>{
+    return response.json();
+  }).then(async (data)=> {
+    console.log(data);
+    if( data.artists == null || data.artists == undefined ){
+      console.log("artists not found in spotify api response");
+      return;
+    }
+    callback(data.artists);
   });
 }

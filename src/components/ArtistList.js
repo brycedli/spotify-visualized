@@ -115,7 +115,8 @@ ArtistList.defaultProps = {
 const mapStateToProps = (state) => {
   console.log('state',state);
   return {
-    toggleFullList: state.expendList == 'ARTIST' || state.expendList == null
+    toggleFullList: state.expendList == 'ARTIST' || state.expendList == null,
+    artists: state.artists
   };
 }
 

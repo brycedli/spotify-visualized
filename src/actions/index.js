@@ -1,4 +1,5 @@
 
+import { ADD_ARTISTS, ADD_SONGS } from '../constants/ActionTypes'
 
 export const addParticles = particles => ({
   type: 'ADD_PARTICLES',
@@ -18,6 +19,11 @@ export const addPlaylists = playlists => ({
 export const expendList = expendList => ({
   type: 'TOGGLE_LIST',
   expendList
+})
+
+export const addArtists = newArtists => ({
+  type: 'ADD_ARTISTS',
+  newArtists
 })
 
 
