@@ -97,7 +97,8 @@ SongList.defaultProps = {
 const mapStateToProps = (state) => {
   console.log(state);
   return {
-    toggleFullList: state.expendList == 'SONG'
+    toggleFullList: state.expendList == 'SONG',
+    songs: state.songs
   };
 }
 

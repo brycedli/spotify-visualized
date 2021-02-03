@@ -50,7 +50,9 @@ export const authenticateSpotify = (window_location)=>{
 
 function getFeatureData(callback, songs){
   var featureURL = 'https://api.spotify.com/v1/audio-features?ids=' + songs.join(",");
-
+  if (songs.length == 0) {
+    return;
+  }
   console.log("Getting feature data for", songs.length, "songs");
   fetch(featureURL,{
     method: 'GET',
@@ -302,8 +304,8 @@ export const getTopSongs =  (callback, url = url_top_song) => {
 
 export const getArtists = (callback, artists) => {
   var artistsURL = url_artist + '?ids=' + artists.join(",");
-  console.log('artists',artists);
-  console.log("Getting artist data for", artists.length, "artists");
+  //console.log('artists',artists);
+  //console.log("Getting artist data for", artists.length, "artists");
   fetch(artistsURL,{
     method: 'GET',
     headers:{
@@ -313,9 +315,9 @@ export const getArtists = (callback, artists) => {
   }).then((response)=>{
     return response.json();
   }).then(async (data)=> {
-    console.log(data);
+    //console.log(data);
     if( data.artists == null || data.artists == undefined ){
-      console.log("artists not found in spotify api response");
+      //console.log("artists not found in spotify api response");
       return;
     }
     callback(data.artists);

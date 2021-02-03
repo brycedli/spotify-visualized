@@ -1,11 +1,13 @@
 import { combineReducers } from 'redux'
-import particles from './particles'
+import focusSongs from './focusSongs'
 import expendList from './expendList'
 import artists from './artists'
+import songs from './songs'
 
 
 export default combineReducers({
-  particles,
+  focusSongs,
   expendList,
-  artists
+  artists,
+  songs
 })

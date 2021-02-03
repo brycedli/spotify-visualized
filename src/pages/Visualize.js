@@ -4,15 +4,14 @@ import Grid from "@material-ui/core/Grid";
 import Headers from '../components/Headers'
 import * as THREE from "three";
 import { connect } from 'react-redux'
-import { addParticles } from '../actions'
-import { addArtists } from '../actions'
+import { addArtists, addSongs, focusSongs } from '../actions'
 import PropTypes from 'prop-types';
 import {CONNECTION_URL, authenticateSpotify, getTopSongs, getPlaylistSongs, getArtists} from '../middleware/SpotifyApi'
 import ArtistList from '../components/ArtistList' 
 import SongList from '../components/SongList' 
 
 import {OrbitControls, renderRequested} from '../libs/OrbitControls'
-
+import {extractSongFromParticle} from '../middleware/VisualizationModels'
 
 function minimize_exec(fn, ms) {
   let timer
@@ -77,7 +76,7 @@ class ThreeJsComponent extends Component {
   }
 
   renderParticle(particle){
-    console.log("prop particles");
+    //console.log("prop particles");
 
     // let _particles = this.props.particles;
     // if(!_particles.get(particle.trackData.id)){
@@ -173,6 +172,7 @@ class ThreeJsComponent extends Component {
     const _songs = this.songs;
     const _dispatch = this.props.dispatch;
     const artistToDisplay = new Map();
+    const songsToDisplay = new Map();
     
     if (!authenticateSpotify(window.location)) {
       window.location = '/';
@@ -184,27 +184,31 @@ class ThreeJsComponent extends Component {
     const max_artist = 20;
     let _this = this;
     getTopSongs(function(data_particles){
-      // console.log('particles',data_particles, _particles.size);
-      
+      console.log('top songs',data_particles, _particles.size);
+      const songBatch = [];
       data_particles.forEach(function(value, key) {
-        if(_particles.get(key, value)){
-          console.log("skipped");
+        if(_particles.get(key) != null){
+          //console.log("skipped");
           return;
         }
         _particles.set(key, value);
         _this.renderParticle(value);
+        //get feature content
+        const item = extractSongFromParticle(value);
+        if (item!=null && !songsToDisplay.has(item.id)) {
+          songsToDisplay.set(item.id,item);
+          songBatch.push(item);
+        } 
       })
-
+      if (songBatch.length > 0) {
+        _dispatch(addSongs(songBatch));
+      }
       
-        // getFeatures(function(){
-        //     console.log("done", particles);
-
-        // });
     });
 
     getPlaylistSongs(function(data_particles){
       let artistIds = [];
-      
+      const songBatch = [];
       console.log(data_particles);
       data_particles.forEach(function(value, key) {
         if(_particles.get(key) != null){
@@ -213,7 +217,12 @@ class ThreeJsComponent extends Component {
         }
         _particles.set(key, value);
         _this.renderParticle(value);
-        
+        const item = extractSongFromParticle(value);
+        if (item!=null && !songsToDisplay.has(item.id)) {
+          songsToDisplay.set(item.id,item);
+          songBatch.push(item);
+        } 
+
         if (value.trackData != null && value.trackData.artists != null) {
           value.trackData.artists.forEach(a =>{
               _artists[a.id] = {id:a.id,name:a.name,thumbnail_url:a.url,genre:a.type};
@@ -222,13 +231,19 @@ class ThreeJsComponent extends Component {
               }
             });
         }
-        console.log('value.trackData',value.trackData, 'artistIds', artistIds);
+        //console.log('value.trackData',value.trackData);
       });
+      if (songBatch.length > 0) {
+        _dispatch(addSongs(songBatch));
+      }
+      
+
+      //console.log( 'artistIds', artistIds);
       //get top artist _artists
       
       if (artistIds.length > 0) {
         getArtists((artistdata)=>{
-          
+          const artistBatch = [];
           artistdata.forEach(a=>{
             if (a.id == null || a.id == '') {
               return;
@@ -236,11 +251,12 @@ class ThreeJsComponent extends Component {
             const item = {id:a.id,name:a.name,thumbnail_url:a.images[2].url,genre:a.genres.join(', ')};
             if (!artistToDisplay.has(a.id)) {
               artistToDisplay.set(a.id,item);
-              _dispatch(addArtists(item));
+              artistBatch.push(item);
+              //_dispatch(addArtists(item));
             } 
 
           });
-
+          _dispatch(addArtists(artistBatch));
         }, artistIds);
       }
 
@@ -436,9 +452,9 @@ class ThreeJsComponent extends Component {
 
 
 const mapStateToProps = (state) => {
-  console.log(state.particles);
+  //console.log('highlight songs',state.focusSongs);
   return {
-    particles: state.particles
+    focusSongs: state.focusSongs
   };
 }
 
