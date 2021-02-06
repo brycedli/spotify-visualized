@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { connect } from 'react-redux'
 import { addArtists, addSongs, focusSongs } from '../actions'
 import PropTypes from 'prop-types';
-import {CONNECTION_URL, authenticateSpotify, getTopSongs, getPlaylistSongs, getArtists} from '../middleware/SpotifyApi'
+import {CONNECTION_URL, authenticateSpotify, getTopSongs, getPlaylistSongs, getArtists, getTopArtists} from '../middleware/SpotifyApi'
 import ArtistList from '../components/ArtistList' 
 import SongList from '../components/SongList' 
 
@@ -93,7 +93,7 @@ class ThreeJsComponent extends Component {
     // console.log(particle.trackData);
     const pop = particle.trackData.popularity + 1;
     const size = particle.trackData.popularity/30;
-    var geometry = new THREE.SphereGeometry(1, 10, 10);
+    var geometry = new THREE.SphereGeometry(size, 10, 10);
     if (!particle.featureData){
       // console.log("no feature data, ",particle);
       return;
@@ -241,25 +241,43 @@ class ThreeJsComponent extends Component {
       //console.log( 'artistIds', artistIds);
       //get top artist _artists
       
-      if (artistIds.length > 0) {
-        getArtists((artistdata)=>{
-          const artistBatch = [];
-          artistdata.forEach(a=>{
-            if (a.id == null || a.id == '') {
-              return;
-            }
-            const item = {id:a.id,name:a.name,thumbnail_url:a.images[2].url,genre:a.genres.join(', ')};
-            if (!artistToDisplay.has(a.id)) {
-              artistToDisplay.set(a.id,item);
-              artistBatch.push(item);
-              //_dispatch(addArtists(item));
-            } 
+      
+      getTopArtists((artistdata)=>{
+        const artistBatch = [];
+        console.log("Top artists:" , artistdata);
+        artistdata.forEach(a=>{
+          if (a.id == null || a.id == '') {
+            return;
+          }
+          const item = {id:a.id,name:a.name,thumbnail_url:a.images[2].url,genre:a.genres.join(', ')};
+          if (!artistToDisplay.has(a.id)) {
+            artistToDisplay.set(a.id,item);
+            artistBatch.push(item);
+            //_dispatch(addArtists(item));
+          } 
+          
+        });
 
-          });
-          _dispatch(addArtists(artistBatch));
-        }, artistIds);
-      }
-
+        if (artistIds.length > 0) {
+          getArtists((artistdata)=>{
+            const artistBatch = [];
+            artistdata.forEach(a=>{
+              if (a.id == null || a.id == '') {
+                return;
+              }
+              const item = {id:a.id,name:a.name,thumbnail_url:a.images[2].url,genre:a.genres.join(', ')};
+              if (!artistToDisplay.has(a.id)) {
+                artistToDisplay.set(a.id,item);
+                artistBatch.push(item);
+                //_dispatch(addArtists(item));
+              } 
+  
+            });
+            _dispatch(addArtists(artistBatch));
+          }, artistIds);
+        }
+        _dispatch(addArtists(artistBatch));
+      });
     });
 
     this.renderRef.scene = new THREE.Scene();

@@ -22,6 +22,7 @@ const url_top_song = 'https://api.spotify.com/v1/me/top/tracks?time_range=long_t
 const url_playlists = 'https://api.spotify.com/v1/me/playlists';
 const url_playlistContent = 'https://api.spotify.com/v1/playlists/';
 const url_artist = 'https://api.spotify.com/v1/artists';
+const url_top_artist = "https://api.spotify.com/v1/me/top/artists?limit=50"
 
 export const CONNECTION_URL = API_URL + '/authorize?client_id=' + CLIENT_ID +
 '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
@@ -321,5 +322,22 @@ export const getArtists = (callback, artists) => {
       return;
     }
     callback(data.artists);
+  });
+}
+
+export const getTopArtists = (callback) => {
+  fetch(url_top_artist, {
+    method: 'GET',
+    headers:{
+      'Authorization' : 'Bearer ' + api_session.access_token,
+    },
+
+  }).then((response) => {
+    return response.json();
+  }).then(async (data) => {
+    if (data.items == null || data.items == undefined){
+      return;
+    }
+    callback(data.items);
   });
 }
