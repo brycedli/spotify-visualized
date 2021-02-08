@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { expendList } from '../actions'
+import { expendList, focusArtist } from '../actions'
 import PropTypes from 'prop-types'
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Artist from './Artist'
@@ -10,7 +10,7 @@ import Artist from './Artist'
 class ArtistList extends React.Component {
 
   render() {
-    const { artists, toggleFullList } = this.props;
+    const { artists, toggleFullList , onClickToExpend, onHoverToFocusArtist} = this.props;
 
     return (
       <div className="listingpanel">
@@ -25,7 +25,7 @@ class ArtistList extends React.Component {
               <Artist
                 key={artist.id}
                 {...artist}
-                // onClick={() => toggleFullList()}
+                onHoverToFocusArtist={() => onHoverToFocusArtist(artist.id)}
               />
             )}
           </ul>
@@ -33,11 +33,8 @@ class ArtistList extends React.Component {
 
         <div className='listSeeMore'>
           <div className='listSeeMoreMask'></div>
-          <div className='listSeeMoreButton'
-          onClick={e => {
-            console.log("Clicked");
-            this.props.dispatch(expendList('ARTIST'));
-            }}
+          <div className={toggleFullList ? 'disableSeeMoreButton' : 'listSeeMoreButton' }
+          onClick={onClickToExpend}
           >
             <span className='listSeeMore'>
               SEE MORE ARTISTS
@@ -55,7 +52,8 @@ class ArtistList extends React.Component {
 
 ArtistList.propTypes = {
   artists: PropTypes.array.isRequired,
-  toggleFullList: PropTypes.bool.isRequired
+  toggleFullList: PropTypes.bool.isRequired,
+  onHoverToFocusArtist: PropTypes.func.isRequired
 }
 
 ArtistList.defaultProps = {
@@ -64,49 +62,57 @@ ArtistList.defaultProps = {
       id: 'a1',
       name: 'Kero Kero Bonito',
       thumbnail_url: 'https://material-ui.com/static/images/avatar/1.jpg',
-      genre: 'Electric pop, Indie, Future Bass'
+      genre: 'Electric pop, Indie, Future Bass',
+      songs: []
     },
     {
       id: 'a2',
       name: 'Nirvana',
       thumbnail_url: 'https://material-ui.com/static/images/avatar/2.jpg',
-      genre: 'Punk Rock, Grunge'
+      genre: 'Punk Rock, Grunge',
+      songs: []
     },
     {
       id: 'a3',
       name: 'Playboi Carti',
       thumbnail_url: 'https://material-ui.com/static/images/avatar/3.jpg',
-      genre: 'Cloud rap, Trap, Hip-Hop/Rap'
+      genre: 'Cloud rap, Trap, Hip-Hop/Rap',
+      songs: []
     },
     {
       id: 'a4',
       name: 'Pixies',
       thumbnail_url: 'https://material-ui.com/static/images/avatar/4.jpg',
-      genre: 'Indie, Punk Rock, Grunge'
+      genre: 'Indie, Punk Rock, Grunge',
+      songs: []
     },
     {
       id: 'a5',
       name: 'Kero Kero Bonito',
       thumbnail_url: 'https://material-ui.com/static/images/avatar/1.jpg',
-      genre: 'Electric pop, Indie, Future Bass'
+      genre: 'Electric pop, Indie, Future Bass',
+      songs: []
     },
     {
       id: 'a6',
       name: 'Nirvana',
       thumbnail_url: 'https://material-ui.com/static/images/avatar/2.jpg',
-      genre: 'Punk Rock, Grunge'
+      genre: 'Punk Rock, Grunge',
+      songs: []
     },
     {
       id: 'a7',
       name: 'Playboi Carti',
       thumbnail_url: 'https://material-ui.com/static/images/avatar/3.jpg',
-      genre: 'Cloud rap, Trap, Hip-Hop/Rap'
+      genre: 'Cloud rap, Trap, Hip-Hop/Rap',
+      songs: []
     },
     {
       id: 'a8',
       name: 'Pixies',
       thumbnail_url: 'https://material-ui.com/static/images/avatar/4.jpg',
-      genre: 'Indie, Punk Rock, Grunge'
+      genre: 'Indie, Punk Rock, Grunge',
+      songs: []
     }
   ],
   toggleFullList: true
@@ -120,6 +126,11 @@ const mapStateToProps = (state) => {
   };
 }
 
+const mapDispatchToProps = dispatch => ({
+  onHoverToFocusArtist: (id) => dispatch(focusArtist(id)),
+  onClickToExpend: () => dispatch(expendList('ARTIST'))
+})
+
 // const mapDispatchToProps = dispatch => {
 //   console.log('mapDispatchToProps called');
 //   return {
@@ -127,4 +138,4 @@ const mapStateToProps = (state) => {
 //   };
 // }
 
-export default connect(mapStateToProps /*,mapDispatchToProps*/)(ArtistList) 
+export default connect(mapStateToProps, mapDispatchToProps)(ArtistList) 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { expendList } from '../actions'
+import { expendList, focusSong } from '../actions'
 import PropTypes from 'prop-types'
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Song from './Song'
@@ -9,7 +9,7 @@ import Song from './Song'
 class SongList extends React.Component {
 
   render() {
-    const { songs, toggleFullList } = this.props;
+    const { songs, toggleFullList, onHoverToFocusSongs, onClickToExpend } = this.props;
 
     return (
       <div className="listingpanel">
@@ -25,7 +25,7 @@ class SongList extends React.Component {
               <Song
                 key={song.id}
                 {...song}
-                // onClick={() => toggleFullList()}
+                onHoverToFocusSongs={() => onHoverToFocusSongs(song.id)}
               />
             )}
           </ul>
@@ -33,11 +33,8 @@ class SongList extends React.Component {
 
         <div className='listSeeMore'>
           <div className='listSeeMoreMask'></div>
-          <div className='listSeeMoreButton'
-          onClick={e => {
-            console.log("Clicked");
-            this.props.dispatch(expendList('SONG'));
-            }}
+          <div className={toggleFullList ? 'disableSeeMoreButton' : 'listSeeMoreButton' }
+          onClick={onClickToExpend}
           >
             <span className='listSeeMore'>
               SEE MORE SONGS
@@ -55,7 +52,9 @@ class SongList extends React.Component {
 
 SongList.propTypes = {
   songs: PropTypes.array.isRequired,
-  toggleFullList: PropTypes.bool.isRequired
+  toggleFullList: PropTypes.bool.isRequired,
+  onHoverToFocusSongs: PropTypes.func.isRequired,
+  onClickToExpend: PropTypes.func.isRequired
 }
 
 SongList.defaultProps = {
@@ -95,12 +94,17 @@ SongList.defaultProps = {
 }
 
 const mapStateToProps = (state) => {
-  console.log(state);
+  // console.log(state);
   return {
     toggleFullList: state.expendList == 'SONG',
     songs: state.songs
   };
 }
 
-export default connect(mapStateToProps /*,mapDispatchToProps*/)(SongList) 
+const mapDispatchToProps = dispatch => ({
+  onHoverToFocusSongs: (id) => dispatch(focusSong(id)),
+  onClickToExpend: () => dispatch(expendList('SONG'))
+})
+
+export default connect(mapStateToProps ,mapDispatchToProps)(SongList) 
 

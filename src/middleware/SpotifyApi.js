@@ -335,6 +335,7 @@ export const getTopArtists = (callback) => {
   }).then((response) => {
     return response.json();
   }).then(async (data) => {
+    console.log(data);
     if (data.items == null || data.items == undefined){
       return;
     }

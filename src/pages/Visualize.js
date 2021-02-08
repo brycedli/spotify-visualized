@@ -4,7 +4,7 @@ import Grid from "@material-ui/core/Grid";
 import Headers from '../components/Headers'
 import * as THREE from "three";
 import { connect } from 'react-redux'
-import { addArtists, addSongs, focusSongs } from '../actions'
+import { addArtists, addSongs, focusSongs, focusArtist } from '../actions'
 import PropTypes from 'prop-types';
 import {CONNECTION_URL, authenticateSpotify, getTopSongs, getPlaylistSongs, getArtists, getTopArtists} from '../middleware/SpotifyApi'
 import ArtistList from '../components/ArtistList' 
@@ -29,6 +29,8 @@ class ThreeJsComponent extends Component {
   constructor (props){
     super(props);
     this.particles = new Map();
+    this.particleRenders = new Map();
+    
     this.artists = new Map();
     this.songs = new Map();
     console.log("particles map created", this.particles);
@@ -69,10 +71,22 @@ class ThreeJsComponent extends Component {
     window.addEventListener('resize', minimize_exec(_this_updateRenderer, 200));
 
   }
+  focusSong(songId) {
+    console.log('focus song', songId, 'rendered mesh',this.particleRenders.get(songId));
+
+  }
+  focusArtist(artisId) {
+    console.log('focus artist', artisId, 'songs', this.artists.get(artisId).get('songs'));
+  }
 
   componentDidUpdate(preProp) {
-    console.log('updated');
-    this.handleUpdate();
+
+    if (preProp.focusArtist !== this.props.focusArtist) {
+      this.focusArtist(this.props.focusArtist);
+    }
+    if (preProp.focusSong !== this.props.focusSong) {
+      this.focusSong(this.props.focusSong);
+    }
   }
 
   renderParticle(particle){
@@ -90,7 +104,7 @@ class ThreeJsComponent extends Component {
     //1. create new sphere , set pos and size, color
     //2. create new 3d text, set anchor,size,content
     //3. this.renderer.add sphere and text
-    // console.log(particle.trackData);
+    //console.log(particle);
     const pop = particle.trackData.popularity + 1;
     const size = particle.trackData.popularity/30;
     var geometry = new THREE.SphereGeometry(size, 10, 10);
@@ -106,7 +120,7 @@ class ThreeJsComponent extends Component {
     song.position.x = particle.featureData.energy * 100;
     song.position.y = particle.featureData.valence * 100;
     song.position.z = particle.featureData.acousticness * 100;
-
+    this.particleRenders.set(particle.trackData.id, song);
     this.renderRef.scene.add(song);
     this.renderRef.controls.update();
   
@@ -115,21 +129,24 @@ class ThreeJsComponent extends Component {
 
 
   
-  handleUpdate(){
-    console.log(`render particle ${this.props.particles} in Visualize`);
-    const currentState = [];
-    // console.log(this.particles);
-    for (const p in this.props.particles){
-      console.log(p);
-      this.renderParticle(p);
-      this.particles.push(p);
-    }
+  // handleUpdate(){
+  //   if (this.renderer == undefined) {
+  //     return;
+  //   }
+  //   console.log(`render particle ${this.props.particles} in Visualize`);
+  //   const currentState = [];
+  //   // console.log(this.particles);
+  //   for (const p in this.props.particles){
+  //     console.log(p);
+  //     this.renderParticle(p);
+  //     this.particles.push(p);
+  //   }
     
-    this.renderer.render(this.scene, this.camera);
-    console.log('rendered', this.particles);
-    //https://github.com/brycedli/spotify-visualized/blob/aa9485c2b8b2a4f60869ac57ae89cd051da053bb/django-spotify/spotme/templates/spotme/visualize.html#L470
-    console.log("rendered");
-  }
+  //   this.renderer.render(this.scene, this.camera);
+  //   console.log('rendered', this.particles);
+  //   //https://github.com/brycedli/spotify-visualized/blob/aa9485c2b8b2a4f60869ac57ae89cd051da053bb/django-spotify/spotme/templates/spotme/visualize.html#L470
+  //   console.log("rendered");
+  // }
 
   requestRenderIfNotRequested() {
     let _this_renderRef = this.renderRef;
@@ -168,6 +185,7 @@ class ThreeJsComponent extends Component {
   componentDidMount(){
     //handle login redirect
     const _particles = this.particles;
+    const _particleRenders = this.particleRenders;
     const _artists = this.artists;
     const _songs = this.songs;
     const _dispatch = this.props.dispatch;
@@ -191,6 +209,19 @@ class ThreeJsComponent extends Component {
           //console.log("skipped");
           return;
         }
+        if (value.trackData != null && value.trackData.artists != null) {
+          value.trackData.artists.forEach(a =>{
+            console.log(a);
+            if (!_artists.has(a.id)) {
+              const _newArtist = new Map();
+              _newArtist.set('name',a.name);
+              _newArtist.set('songs',new Map());
+              _artists.set(a.id, _newArtist);
+            } 
+            _artists.get(a.id).get('songs').set(value.trackData.id, value.trackData);
+          });
+        }
+        
         _particles.set(key, value);
         _this.renderParticle(value);
         //get feature content
@@ -225,7 +256,15 @@ class ThreeJsComponent extends Component {
 
         if (value.trackData != null && value.trackData.artists != null) {
           value.trackData.artists.forEach(a =>{
-              _artists[a.id] = {id:a.id,name:a.name,thumbnail_url:a.url,genre:a.type};
+              console.log(a);
+              if (!_artists.has(a.id)) {
+                const _newArtist = new Map();
+                _newArtist.set('name',a.name);
+                _newArtist.set('songs',new Map());
+                _artists.set(a.id, _newArtist);
+              } 
+              _artists.get(a.id).get('songs').set(value.trackData.id, value.trackData);
+
               if (artistIds.length < max_artist) {
                 artistIds.push(a.id);
               }
@@ -251,8 +290,15 @@ class ThreeJsComponent extends Component {
           }
           const item = {id:a.id,name:a.name,thumbnail_url:a.images[2].url,genre:a.genres.join(', ')};
           if (!artistToDisplay.has(a.id)) {
+            // if (_artists.has(a.id)) {
+            //   const songs = Array.from(_artists.get(a.id).get('songs').keys());
+            //   item['songs'] = songs;
+            // } else {
+            //   item['songs'] = [];
+            // }
             artistToDisplay.set(a.id,item);
             artistBatch.push(item);
+            //todo: add song id list
             //_dispatch(addArtists(item));
           } 
           
@@ -260,6 +306,7 @@ class ThreeJsComponent extends Component {
 
         if (artistIds.length > 0) {
           getArtists((artistdata)=>{
+            console.log("Top artists from song list:" , artistdata);
             const artistBatch = [];
             artistdata.forEach(a=>{
               if (a.id == null || a.id == '') {
@@ -267,6 +314,12 @@ class ThreeJsComponent extends Component {
               }
               const item = {id:a.id,name:a.name,thumbnail_url:a.images[2].url,genre:a.genres.join(', ')};
               if (!artistToDisplay.has(a.id)) {
+                if (_artists.has(a.id)) {
+                  const songs = Array.from(_artists.get(a.id).get('songs').keys());
+                  item['songs'] = songs;
+                } else {
+                  item['songs'] = [];
+                }
                 artistToDisplay.set(a.id,item);
                 artistBatch.push(item);
                 //_dispatch(addArtists(item));
@@ -470,9 +523,10 @@ class ThreeJsComponent extends Component {
 
 
 const mapStateToProps = (state) => {
-  //console.log('highlight songs',state.focusSongs);
+  //console.log('highlight song:',state.focusSong, 'artist',state.focusArtist);
   return {
-    focusSongs: state.focusSongs
+    focusArtist: state.focusArtist,
+    focusSong: state.focusSong
   };
 }
 

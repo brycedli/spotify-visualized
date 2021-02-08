@@ -211,6 +211,7 @@ div.listSeeMore {
   text-align: center;
   margin-top: -40px;
   position:relative;
+  color: #FFF;
 }
 
 div.listSeeMoreMask {
@@ -218,6 +219,11 @@ div.listSeeMoreMask {
   height: 40px;
   background: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0));
   position:relative;
+}
+
+div.disableSeeMoreButton { 
+  pointer-events: none; 
+  color: #666;
 }
 
 div.listSeeMoreButton:hover {
@@ -230,5 +236,5 @@ span.listSeeMore {
   font-weight: bold;
   margin-top: -6px;
   display: inline-block;
-  color: white;
+  /* color: white; */
 }

@@ -6,11 +6,15 @@ export const addParticles = particles => ({
   particles
 })
 
-export const focusSongs = focusSongs => ({
-  type: 'FOCUS_SONGS',
-  focusSongs
+export const focusSong = id => ({
+  type: 'FOCUS_SONG',
+  id
 })
 
+export const focusArtist = id => ({
+  type: 'FOCUS_ARTIST',
+  id
+})
 
 export const addSongs = newSongs => ({
   type: 'ADD_SONGS',
