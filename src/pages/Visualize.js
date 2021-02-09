@@ -71,12 +71,76 @@ class ThreeJsComponent extends Component {
     window.addEventListener('resize', minimize_exec(_this_updateRenderer, 200));
 
   }
-  focusSong(songId) {
-    console.log('focus song', songId, 'rendered mesh',this.particleRenders.get(songId));
+
+  focusObject(mesh, particle) {
+    const _this_renderRef = this.renderRef;
+    let annimationFrames = 10;
+    const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
+    const loader = new THREE.FontLoader();
+    //https://fonts.google.com/specimen/Titillium+Web?preview.text_type=custom
+    //https://gero3.github.io/facetype.js/
+    loader.load( '/fonts/Titillium Web_Bold.json', function ( font ) {
+
+      const _text_geometry = new THREE.TextGeometry( particle.trackData.name, {
+        font: font,
+        size: 12,
+        height: 1,
+        curveSegments: 48,
+        bevelEnabled: false
+      } );
+
+      const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5, color: new THREE.Color(0.8, 0.8, 0.8) });
+      const textMesh = new THREE.Mesh( _text_geometry, material );
+      textMesh.position.x = mesh.position.x;
+      textMesh.position.y = mesh.position.y + 10;
+      textMesh.position.z = mesh.position.z;
+      textMesh.scale.x = 0.5;
+      textMesh.scale.y = 0.5;
+      textMesh.scale.z = 0.5;
+      textMesh.quaternion.copy(_this_renderRef.camera.quaternion);
+
+      _this_renderRef.scene.add(textMesh);
+
+      var mainLoop = async() => {
+        if (annimationFrames > 0) {
+          annimationFrames -= 1;
+          await wait(100);
+          requestAnimationFrame(mainLoop)
+        } else {
+          mesh.scale.x = 0.1;
+          mesh.scale.y = 0.1;
+          mesh.scale.z = 0.1;
+          //console.log('resore scale');
+          _this_renderRef.scene.remove(textMesh);
+        }
+        
+        _this_renderRef.renderer.render(_this_renderRef.scene, _this_renderRef.camera)
+        
+        mesh.scale.x += 0.1
+        mesh.scale.y += 0.1
+        mesh.scale.z += 0.1
+        //console.log('change scale',mesh.scale);
+      }
+      
+      mainLoop()
+
+    } );
+
+    
 
   }
+
+  focusSong(songId) {
+    console.log('focus song', songId, 'rendered mesh',this.particleRenders.get(songId), 'particle',this.particles.get(songId));
+    this.focusObject(this.particleRenders.get(songId), this.particles.get(songId));
+  }
+
   focusArtist(artisId) {
     console.log('focus artist', artisId, 'songs', this.artists.get(artisId).get('songs'));
+  
+    this.artists.get(artisId).get('songs').forEach((v,k) => {
+      this.focusSong(k);
+    });
   }
 
   componentDidUpdate(preProp) {
