@@ -13,16 +13,16 @@ import SongList from '../components/SongList'
 import {OrbitControls, renderRequested} from '../libs/OrbitControls'
 import {extractSongFromParticle} from '../middleware/VisualizationModels'
 
-function minimize_exec(fn, ms) {
-  let timer
-  return _ => {
-    clearTimeout(timer)
-    timer = setTimeout(_ => {
-      timer = null
-      fn.apply(this, arguments)
-    }, ms)
-  };
-}
+import {minimize_exec} from '../libs/util'
+
+//https://fonts.google.com/specimen/Titillium+Web?preview.text_type=custom
+//https://gero3.github.io/facetype.js/
+
+var lableFont = null
+new THREE.FontLoader().load( '/fonts/Titillium Web_Bold.json', function ( font ) {
+  console.log('font loaded');
+  lableFont = font;
+})
 
 class ThreeJsComponent extends Component {
 
@@ -76,57 +76,53 @@ class ThreeJsComponent extends Component {
     const _this_renderRef = this.renderRef;
     let annimationFrames = 10;
     const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
-    const loader = new THREE.FontLoader();
-    //https://fonts.google.com/specimen/Titillium+Web?preview.text_type=custom
-    //https://gero3.github.io/facetype.js/
-    loader.load( '/fonts/Titillium Web_Bold.json', function ( font ) {
 
-      const _text_geometry = new THREE.TextGeometry( particle.trackData.name, {
-        font: font,
-        size: 12,
-        height: 1,
-        curveSegments: 48,
-        bevelEnabled: false
-      } );
-
-      const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5, color: new THREE.Color(0.8, 0.8, 0.8) });
-      const textMesh = new THREE.Mesh( _text_geometry, material );
-      textMesh.position.x = mesh.position.x;
-      textMesh.position.y = mesh.position.y + 10;
-      textMesh.position.z = mesh.position.z;
-      textMesh.scale.x = 0.5;
-      textMesh.scale.y = 0.5;
-      textMesh.scale.z = 0.5;
-      textMesh.quaternion.copy(_this_renderRef.camera.quaternion);
-
-      _this_renderRef.scene.add(textMesh);
-
-      var mainLoop = async() => {
-        if (annimationFrames > 0) {
-          annimationFrames -= 1;
-          await wait(100);
-          requestAnimationFrame(mainLoop)
-        } else {
-          mesh.scale.x = 0.1;
-          mesh.scale.y = 0.1;
-          mesh.scale.z = 0.1;
-          //console.log('resore scale');
-          _this_renderRef.scene.remove(textMesh);
-        }
-        
-        _this_renderRef.renderer.render(_this_renderRef.scene, _this_renderRef.camera)
-        
-        mesh.scale.x += 0.1
-        mesh.scale.y += 0.1
-        mesh.scale.z += 0.1
-        //console.log('change scale',mesh.scale);
-      }
-      
-      mainLoop()
-
+    if (lableFont == null){
+      return;
+    }
+    const _text_geometry = new THREE.TextGeometry( particle.trackData.name, {
+      font: lableFont,
+      size: 12,
+      height: 1,
+      curveSegments: 48,
+      bevelEnabled: false
     } );
 
+
+    const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5, color: new THREE.Color(0.8, 0.8, 0.8) });
+    const textMesh = new THREE.Mesh( _text_geometry, material );
+    textMesh.position.x = mesh.position.x;
+    textMesh.position.y = mesh.position.y + 10;
+    textMesh.position.z = mesh.position.z;
+    textMesh.scale.x = 0.5;
+    textMesh.scale.y = 0.5;
+    textMesh.scale.z = 0.5;
+    textMesh.quaternion.copy(_this_renderRef.camera.quaternion);
+
+    _this_renderRef.scene.add(textMesh);
+
+    var mainLoop = async() => {
+      if (annimationFrames > 0) {
+        annimationFrames -= 1;
+        await wait(100);
+        requestAnimationFrame(mainLoop)
+      } else {
+        mesh.scale.x = 0.2;
+        mesh.scale.y = 0.2;
+        mesh.scale.z = 0.2;
+        //console.log('resore scale');
+        _this_renderRef.scene.remove(textMesh);
+      }
+      
+      _this_renderRef.renderer.render(_this_renderRef.scene, _this_renderRef.camera)
+      
+      mesh.scale.x += 0.1
+      mesh.scale.y += 0.1
+      mesh.scale.z += 0.1
+      //console.log('change scale',mesh.scale);
+    }
     
+    mainLoop()
 
   }
 
