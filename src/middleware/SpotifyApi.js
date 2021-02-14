@@ -6,14 +6,10 @@ const SCOPES = [
   'user-top-read',
   'playlist-read-private'
 ];
-let CLIENT_ID, REDIRECT_URI;
-if (process.env.NODE_ENV === 'production') {
-  CLIENT_ID  = '22ca38327ff8436cbf97e5979d2eb063';
-  REDIRECT_URI = 'https://brycedemos.com/visualize'; 
-} else {
-  CLIENT_ID  = '3811316e2e644bb893e5e868116c25c9';
-  REDIRECT_URI = 'http://localhost:3000/visualize'; 
-}
+
+const CLIENT_ID = process.env.REACT_APP_SPOTIFY_API_CLIENTID;
+const REDIRECT_URI = process.env.REACT_APP_SPOTIFY_API_REDIRECT;
+
 const MAX_SONGS = 400;
 const api_session = {};
 var api_session_ts = null;

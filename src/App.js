@@ -14,8 +14,6 @@ import theme from "./theme";
 // import './App.css';
 import Home from './pages/Home'
 import Welcome from './pages/Welcome'
-
-import LoginPage from './pages/Login'
 import VisualizePage from './pages/Visualize'
 
 function App() {
@@ -27,7 +25,6 @@ function App() {
       <Router>
         <Switch>
           <Route exact path="/" component={Welcome}></Route>
-          <Route path="/login" component={LoginPage}></Route>
           <Route path="/visualize" component={VisualizePage}></Route>
         </Switch>
       </Router>
