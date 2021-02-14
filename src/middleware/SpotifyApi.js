@@ -27,7 +27,7 @@ export const CONNECTION_URL = API_URL + '/authorize?client_id=' + CLIENT_ID +
 
 
 export const authenticateSpotify = (window_location)=>{
-  console.log('Start spotify api authentication');
+  //console.log('Start spotify api authentication');
   try {
     let valid = false;
     window_location.hash.replace(/^#\/?/, '').split('&').forEach(function(kv) {
@@ -38,7 +38,7 @@ export const authenticateSpotify = (window_location)=>{
       }
     });
     api_session_ts =  new Date();
-    console.log('api_session',api_session, "api_session_ts", api_session_ts);
+    //console.log('api_session',api_session, "api_session_ts", api_session_ts);
     return valid;
   } catch (err) {
     return false;
@@ -50,7 +50,7 @@ function getFeatureData(callback, songs){
   if (songs.length == 0) {
     return;
   }
-  console.log("Getting feature data for", songs.length, "songs");
+  //console.log("Getting feature data for", songs.length, "songs");
   fetch(featureURL,{
     method: 'GET',
     headers:{
@@ -65,7 +65,7 @@ function getFeatureData(callback, songs){
     // console.log(data);
     // const particles = new Map();
     if( data.audio_features == null || data.audio_features == undefined ){
-      console.log("item not found in spotify api response");
+      //console.log("item not found in spotify api response");
       return;
     }
     callback(data.audio_features);
@@ -102,11 +102,11 @@ function playlistContent(url, callbackPlaylist){ //initally called once per play
   }).then(async (data) => {
     //fetched playlist metadata. contine recursively doing that.
     if (data.items){
-      console.log("data items");
+      //console.log("data items");
       callbackPlaylist(data.items);
     }
     else if (data.tracks){
-      console.log("data tracks");
+      //console.log("data tracks");
       callbackPlaylist(data.tracks.items);
     }
     // callback( data); //1 batch (~20 songs) of data.  
@@ -142,7 +142,7 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
     // const particles = new Map();
     const playlistBatch = new Map();
     if( data.items == null || data.items == undefined ){
-      console.log("item not found in spotify api response");
+      //console.log("item not found in spotify api response");
       return;
     }
     let playlistContentBatchCnt = 0;
@@ -157,7 +157,7 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
         // console.log(songs);
         songs.forEach(function(indivSong){//iterate through each song
           if (indivSong.track == null) {
-            console.log('track',indivSong.track);
+            //console.log('track',indivSong.track);
             return;
           }
           var particle = new Particle();
@@ -230,7 +230,7 @@ export const getPlaylistSongs = (callback, url = url_playlists) => {
       // callback(playlistBatch);
     })
     playlistBatchCnt += 1;
-    console.log('playlistBatchCnt',playlistBatchCnt, 'MAX_PL_BATCH',MAX_PL_BATCH);
+    //console.log('playlistBatchCnt',playlistBatchCnt, 'MAX_PL_BATCH',MAX_PL_BATCH);
     if (data.next && playlistBatchCnt < MAX_PL_BATCH) {
       await wait(500);
       getPlaylistSongs(callback, data.next);
@@ -253,7 +253,7 @@ export const getTopSongs =  (callback, url = url_top_song) => {
       //console.log(data);
       const particles = new Map();
       if( data.items == null || data.items == undefined ){
-        console.log("item not found in spotify api response");
+        //console.log("item not found in spotify api response");
         return;
       }
 
@@ -261,8 +261,9 @@ export const getTopSongs =  (callback, url = url_top_song) => {
           var particle = new Particle();
           particle.addTrackData(item);
           // console.log(item.track.name, item.track.artists[0].name);
-          if(!item){
-              console.log("item not found in initial song loop");
+          if(item == undefined || item == null){
+              //console.log("item not found in initial song loop");
+              return;
           }
 
           // particles.set(item.id, particle);
@@ -331,7 +332,7 @@ export const getTopArtists = (callback) => {
   }).then((response) => {
     return response.json();
   }).then(async (data) => {
-    console.log(data);
+    //console.log(data);
     if (data.items == null || data.items == undefined){
       return;
     }
