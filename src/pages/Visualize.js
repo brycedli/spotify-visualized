@@ -87,10 +87,45 @@ class ThreeJsComponent extends Component {
       curveSegments: 48,
       bevelEnabled: false
     } );
+    function fragmentShader() {
+      return `
+      uniform vec3 colorA; 
+      uniform vec3 colorB; 
+      varying vec3 vUv;
 
-
-    const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5, color: new THREE.Color(0.8, 0.8, 0.8) });
-    const textMesh = new THREE.Mesh( _text_geometry, material );
+      void main() {
+        gl_FragColor = vec4(mix(colorA, colorB, vUv.z), 1.0);
+      }
+      `
+    }
+    function vertexShader() {
+      return `
+        varying vec3 vUv; 
+    
+        void main() {
+          uniform vec3 color;
+          vUv = position; 
+    
+          vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+          gl_Position = projectionMatrix * modelViewPosition; 
+        }
+      `
+    }
+    let uniforms = {
+      colorB: {type: 'vec3', value: new THREE.Color(0xACB6E5)},
+      colorA: {type: 'vec3', value: new THREE.Color(0x74ebd5)}
+    }
+    const edgeMaterial =  new THREE.ShaderMaterial({
+      uniforms: uniforms,
+      fragmentShader: fragmentShader(),
+      vertexShader: vertexShader(),
+    })
+    const material = new THREE.MeshBasicMaterial({ 
+      side: THREE.DoubleSide, 
+      transparent: true, 
+      opacity: 0.5, 
+      color: new THREE.Color(0.8, 0.8, 0.8) });
+    const textMesh = new THREE.Mesh( _text_geometry, edgeMaterial );
     textMesh.position.x = mesh.position.x;
     textMesh.position.y = mesh.position.y + 10;
     textMesh.position.z = mesh.position.z;
@@ -132,7 +167,10 @@ class ThreeJsComponent extends Component {
   }
 
   focusArtist(artisId) {
-    console.log('focus artist', artisId, 'songs', this.artists.get(artisId).get('songs'));
+    if (!this.artists || !this.artists.get(artisId)) {
+      return;
+    }
+    // console.log('focus artist', artisId, 'songs', this.artists.get(artisId).get('songs'));
   
     this.artists.get(artisId).get('songs').forEach((v,k) => {
       this.focusSong(k);
