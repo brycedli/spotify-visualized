@@ -220,7 +220,7 @@ class ThreeJsComponent extends Component {
       window.location = '/';
       return;
     } else {
-      //window.location = '#ready';
+      window.location = '#ready';
     }
 
     const max_artist = 20;
