@@ -20,7 +20,6 @@ import {minimize_exec} from '../libs/util'
 
 var lableFont = null
 new THREE.FontLoader().load( '/fonts/Titillium Web_Bold.json', function ( font ) {
-  console.log('font loaded');
   lableFont = font;
 })
 
@@ -33,7 +32,6 @@ class ThreeJsComponent extends Component {
     
     this.artists = new Map();
     this.songs = new Map();
-    console.log("particles map created", this.particles);
 
     this.renderRef = {
       renderRequested:false,
@@ -54,7 +52,6 @@ class ThreeJsComponent extends Component {
         const needCanvasResize = _canvas.width !== _width || _canvas.height !== _height;
         const needStyleResize = _canvas.style.width !== _style_width || _canvas.style.height !== _style_height;
         
-        //console.log('canvas',_canvas, 'mount', _width,_height,'needResize(canvas,style)',needCanvasResize,needStyleResize);
         if (needCanvasResize) {
           _this_renderer.setSize(_width, _height, false);
         }
@@ -145,7 +142,6 @@ class ThreeJsComponent extends Component {
         mesh.scale.x = 0.2;
         mesh.scale.y = 0.2;
         mesh.scale.z = 0.2;
-        //console.log('resore scale');
         _this_renderRef.scene.remove(textMesh);
       }
       
@@ -154,7 +150,6 @@ class ThreeJsComponent extends Component {
       mesh.scale.x += 0.1
       mesh.scale.y += 0.1
       mesh.scale.z += 0.1
-      //console.log('change scale',mesh.scale);
     }
     
     mainLoop()
@@ -162,15 +157,17 @@ class ThreeJsComponent extends Component {
   }
 
   focusSong(songId) {
-    console.log('focus song', songId, 'rendered mesh',this.particleRenders.get(songId), 'particle',this.particles.get(songId));
+    console.log('focus song', songId, 'mesh',this.particleRenders.get(songId), 'particle',this.particles.get(songId));
     this.focusObject(this.particleRenders.get(songId), this.particles.get(songId));
   }
 
   focusArtist(artisId) {
-    if (!this.artists || !this.artists.get(artisId)) {
+    if (this.artists.get(artisId) == undefined || this.artists.get(artisId) == null) {
+      console.log('no song found for artist', artisId);
       return;
     }
-    // console.log('focus artist', artisId, 'songs', this.artists.get(artisId).get('songs'));
+    
+    console.log('focus artist', artisId, 'songs', this.artists.get(artisId).get('songs'));
   
     this.artists.get(artisId).get('songs').forEach((v,k) => {
       this.focusSong(k);
@@ -188,26 +185,11 @@ class ThreeJsComponent extends Component {
   }
 
   renderParticle(particle){
-    //console.log("prop particles");
 
-    // let _particles = this.props.particles;
-    // if(!_particles.get(particle.trackData.id)){
-    //   this.props.particles.set(particle.trackData.id, particle);
-    // }else{
-    //   console.log("duplicate");
-    //   return;
-    // }
-    // console.log(this.props.particles.length);
-    //do particle addition logic here, otherwise render.
-    //1. create new sphere , set pos and size, color
-    //2. create new 3d text, set anchor,size,content
-    //3. this.renderer.add sphere and text
-    //console.log(particle);
     const pop = particle.trackData.popularity + 1;
     const size = particle.trackData.popularity/30;
     var geometry = new THREE.SphereGeometry(size, 10, 10);
     if (!particle.featureData){
-      // console.log("no feature data, ",particle);
       return;
     }
 
@@ -224,27 +206,6 @@ class ThreeJsComponent extends Component {
   
     this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
   }
-
-
-  
-  // handleUpdate(){
-  //   if (this.renderer == undefined) {
-  //     return;
-  //   }
-  //   console.log(`render particle ${this.props.particles} in Visualize`);
-  //   const currentState = [];
-  //   // console.log(this.particles);
-  //   for (const p in this.props.particles){
-  //     console.log(p);
-  //     this.renderParticle(p);
-  //     this.particles.push(p);
-  //   }
-    
-  //   this.renderer.render(this.scene, this.camera);
-  //   console.log('rendered', this.particles);
-  //   //https://github.com/brycedli/spotify-visualized/blob/aa9485c2b8b2a4f60869ac57ae89cd051da053bb/django-spotify/spotme/templates/spotme/visualize.html#L470
-  //   console.log("rendered");
-  // }
 
   requestRenderIfNotRequested() {
     let _this_renderRef = this.renderRef;
@@ -294,7 +255,7 @@ class ThreeJsComponent extends Component {
       window.location = '/';
       return;
     } else {
-      //window.location = '#ready';
+      window.location = '#ready';
     }
 
     const max_artist = 20;
@@ -304,12 +265,11 @@ class ThreeJsComponent extends Component {
       const songBatch = [];
       data_particles.forEach(function(value, key) {
         if(_particles.get(key) != null){
-          //console.log("skipped");
           return;
         }
         if (value.trackData != null && value.trackData.artists != null) {
           value.trackData.artists.forEach(a =>{
-            console.log(a);
+            //console.log(a);
             if (!_artists.has(a.id)) {
               const _newArtist = new Map();
               _newArtist.set('name',a.name);
@@ -338,10 +298,10 @@ class ThreeJsComponent extends Component {
     getPlaylistSongs(function(data_particles){
       let artistIds = [];
       const songBatch = [];
-      console.log(data_particles);
+      //console.log(data_particles);
       data_particles.forEach(function(value, key) {
         if(_particles.get(key) != null){
-          console.log("skipped");
+          //console.log("skipped");
           return;
         }
         _particles.set(key, value);
@@ -354,7 +314,7 @@ class ThreeJsComponent extends Component {
 
         if (value.trackData != null && value.trackData.artists != null) {
           value.trackData.artists.forEach(a =>{
-              console.log(a);
+              //console.log(a);
               if (!_artists.has(a.id)) {
                 const _newArtist = new Map();
                 _newArtist.set('name',a.name);

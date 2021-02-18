@@ -10,6 +10,24 @@ In the project directory, you can run:
 
 HOST=localhost PORT=3000 npm start
 
+## Build docker image
+
+- for production
+```shell
+# build image
+docker build -f Dockerfile.prod  -t musicscape:prod .
+# run container
+docker run -it --rm  -p 8080:8080 musicscape:prod
+# deploy docker image
+docker tag musicscape:prod gcr.io/brycedemos/musicscape:prod
+docker push gcr.io/brycedemos/musicscape:prod
+# deploy cloudrun
+gcloud run deploy musicscape \
+--image=gcr.io/brycedemos/musicscape:prod \
+--platform=managed \
+--region=us-west1 \
+--project=brycedemos
+```
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
