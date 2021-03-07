@@ -19,6 +19,20 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+a, u {
+  text-decoration: none;
+}
+
+p.about_text {
+  color: white;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+div.about_text {
+  width: 600px;
+  padding-top: 140px;
+}
 
 h1.app_header {
   font-weight: bold;
