@@ -18,6 +18,8 @@ import {minimize_exec} from '../libs/util'
 //https://fonts.google.com/specimen/Titillium+Web?preview.text_type=custom
 //https://gero3.github.io/facetype.js/
 
+const RESET_LOCATION_AFTER_OAUTH = process.env.RESET_LOCATION_AFTER_OAUTH == 'true';
+
 var lableFont = null
 new THREE.FontLoader().load( '/fonts/Titillium Web_Bold.json', function ( font ) {
   lableFont = font;
@@ -69,61 +71,90 @@ class ThreeJsComponent extends Component {
 
   }
 
-  focusObject(mesh, particle) {
-    const _this_renderRef = this.renderRef;
-    let annimationFrames = 10;
-    const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
+  // focusObject(songId) {
+  //   const mesh = this.particleRenders.get(songId);
+  //   const particle = this.particles.get(songId);
+  //   const _this_renderRef = this.renderRef;
+  //   let annimationFrames = 10;
+  //   const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
 
-    if (lableFont == null){
-      return;
-    }
-    const _text_geometry = new THREE.TextGeometry( particle.trackData.name, {
-      font: lableFont,
-      size: 12,
-      height: 1,
-      curveSegments: 48,
-      bevelEnabled: false
-    } );
+  //   if (lableFont == null){
+  //     return;
+  //   }
+  //   const _text_geometry = new THREE.TextGeometry( particle.trackData.name, {
+  //     font: lableFont,
+  //     size: 12,
+  //     height: 1,
+  //     curveSegments: 48,
+  //     bevelEnabled: false
+  //   } );
 
 
-    const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5, color: new THREE.Color(0.8, 0.8, 0.8) });
-    const textMesh = new THREE.Mesh( _text_geometry, material );
-    textMesh.position.x = mesh.position.x;
-    textMesh.position.y = mesh.position.y + 10;
-    textMesh.position.z = mesh.position.z;
-    textMesh.scale.x = 0.5;
-    textMesh.scale.y = 0.5;
-    textMesh.scale.z = 0.5;
-    textMesh.quaternion.copy(_this_renderRef.camera.quaternion);
+  //   const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5, color: new THREE.Color(0.8, 0.8, 0.8) });
+  //   const textMesh = new THREE.Mesh( _text_geometry, material );
+  //   textMesh.position.x = mesh.position.x;
+  //   textMesh.position.y = mesh.position.y + 10;
+  //   textMesh.position.z = mesh.position.z;
+  //   textMesh.scale.x = 0.5;
+  //   textMesh.scale.y = 0.5;
+  //   textMesh.scale.z = 0.5;
+  //   textMesh.quaternion.copy(_this_renderRef.camera.quaternion);
 
-    _this_renderRef.scene.add(textMesh);
+  //   _this_renderRef.scene.add(textMesh);
 
-    var mainLoop = async() => {
-      if (annimationFrames > 0) {
-        annimationFrames -= 1;
-        await wait(100);
-        requestAnimationFrame(mainLoop)
+  //   var mainLoop = async() => {
+  //     if (annimationFrames > 0) {
+  //       annimationFrames -= 1;
+  //       await wait(100);
+  //       requestAnimationFrame(mainLoop)
+  //     } else {
+  //       mesh.scale.x = 0.2;
+  //       mesh.scale.y = 0.2;
+  //       mesh.scale.z = 0.2;
+  //       _this_renderRef.scene.remove(textMesh);
+  //     }
+      
+  //     _this_renderRef.renderer.render(_this_renderRef.scene, _this_renderRef.camera)
+      
+  //     mesh.scale.x += 0.1
+  //     mesh.scale.y += 0.1
+  //     mesh.scale.z += 0.1
+  //   }
+    
+  //   mainLoop()
+
+  // }
+
+
+  focusObjects(songIdMap) {
+    // const mesh = this.particleRenders.get(songId);
+    // const particle = this.particles.get(songId);
+
+    this.particleRenders.forEach((song,id)=>{
+      if (songIdMap.has(id)) {
+        console.log('focus song', song, id);
+        //song.visible = true;
+        song.material.opacity = 1; 
       } else {
-        mesh.scale.x = 0.2;
-        mesh.scale.y = 0.2;
-        mesh.scale.z = 0.2;
-        _this_renderRef.scene.remove(textMesh);
+        //song.visible = false;
+        song.material.opacity = 0.1; 
       }
       
-      _this_renderRef.renderer.render(_this_renderRef.scene, _this_renderRef.camera)
-      
-      mesh.scale.x += 0.1
-      mesh.scale.y += 0.1
-      mesh.scale.z += 0.1
-    }
-    
-    mainLoop()
+    });
+    this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
 
   }
-
+  resetFocus(){
+    this.particleRenders.forEach((song,id)=>{
+      song.visible = true;
+    });
+    this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
+  }
   focusSong(songId) {
-    console.log('focus song', songId, 'mesh',this.particleRenders.get(songId), 'particle',this.particles.get(songId));
-    this.focusObject(this.particleRenders.get(songId), this.particles.get(songId));
+    // console.log('focus song', songId, 'mesh',this.particleRenders.get(songId), 'particle',this.particles.get(songId));
+    const objectMap = new Map();
+    objectMap.set(songId, this.particleRenders.get(songId));
+    this.focusObjects(objectMap);
   }
 
   focusArtist(artisId) {
@@ -133,10 +164,7 @@ class ThreeJsComponent extends Component {
     }
     
     console.log('focus artist', artisId, 'songs', this.artists.get(artisId).get('songs'));
-  
-    this.artists.get(artisId).get('songs').forEach((v,k) => {
-      this.focusSong(k);
-    });
+    this.focusObjects(this.artists.get(artisId).get('songs'));
   }
 
   componentDidUpdate(preProp) {
@@ -161,6 +189,7 @@ class ThreeJsComponent extends Component {
     var col = new THREE.Color(particle.featureData.energy, particle.featureData.valence, particle.featureData.acousticness);
 
     var material = new THREE.MeshBasicMaterial({ color: col });
+    material.transparent = true;
     var song = new THREE.Mesh(geometry, material);
     song.position.x = particle.featureData.energy * 100;
     song.position.y = particle.featureData.valence * 100;
@@ -219,7 +248,7 @@ class ThreeJsComponent extends Component {
     if (!authenticateSpotify(window.location)) {
       window.location = '/';
       return;
-    } else {
+    } else if (RESET_LOCATION_AFTER_OAUTH){
       window.location = '#ready';
     }
 
