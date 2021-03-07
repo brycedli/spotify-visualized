@@ -58,62 +58,6 @@ ArtistList.propTypes = {
 
 ArtistList.defaultProps = {
   artists: [
-    {
-      id: 'a1',
-      name: 'Kero Kero Bonito',
-      thumbnail_url: 'https://material-ui.com/static/images/avatar/1.jpg',
-      genre: 'Electric pop, Indie, Future Bass',
-      songs: []
-    },
-    {
-      id: 'a2',
-      name: 'Nirvana',
-      thumbnail_url: 'https://material-ui.com/static/images/avatar/2.jpg',
-      genre: 'Punk Rock, Grunge',
-      songs: []
-    },
-    {
-      id: 'a3',
-      name: 'Playboi Carti',
-      thumbnail_url: 'https://material-ui.com/static/images/avatar/3.jpg',
-      genre: 'Cloud rap, Trap, Hip-Hop/Rap',
-      songs: []
-    },
-    {
-      id: 'a4',
-      name: 'Pixies',
-      thumbnail_url: 'https://material-ui.com/static/images/avatar/4.jpg',
-      genre: 'Indie, Punk Rock, Grunge',
-      songs: []
-    },
-    {
-      id: 'a5',
-      name: 'Kero Kero Bonito',
-      thumbnail_url: 'https://material-ui.com/static/images/avatar/1.jpg',
-      genre: 'Electric pop, Indie, Future Bass',
-      songs: []
-    },
-    {
-      id: 'a6',
-      name: 'Nirvana',
-      thumbnail_url: 'https://material-ui.com/static/images/avatar/2.jpg',
-      genre: 'Punk Rock, Grunge',
-      songs: []
-    },
-    {
-      id: 'a7',
-      name: 'Playboi Carti',
-      thumbnail_url: 'https://material-ui.com/static/images/avatar/3.jpg',
-      genre: 'Cloud rap, Trap, Hip-Hop/Rap',
-      songs: []
-    },
-    {
-      id: 'a8',
-      name: 'Pixies',
-      thumbnail_url: 'https://material-ui.com/static/images/avatar/4.jpg',
-      genre: 'Indie, Punk Rock, Grunge',
-      songs: []
-    }
   ],
   toggleFullList: true
 }

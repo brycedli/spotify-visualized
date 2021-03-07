@@ -65,6 +65,7 @@ class ThreeJsComponent extends Component {
         return needCanvasResize;
       }
     };
+    this.resetFocus = this.resetFocus.bind(this);
     const _this_renderRef = this.renderRef;
     const _this_updateRenderer = this.updateRenderer(_this_renderRef);
     window.addEventListener('resize', minimize_exec(_this_updateRenderer, 200));
@@ -144,9 +145,12 @@ class ThreeJsComponent extends Component {
     this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
 
   }
+
   resetFocus(){
+    console.log('reset focus');
     this.particleRenders.forEach((song,id)=>{
-      song.visible = true;
+      //song.visible = true;
+      song.material.opacity = 1; 
     });
     this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
   }
@@ -549,7 +553,9 @@ class ThreeJsComponent extends Component {
             </div>
           </Grid>
           <Grid item >
-            <div className="listpanelcontainer">
+            <div className="listpanelcontainer"
+            onMouseLeave={this.resetFocus}
+            >
               <Grid container direction="column" spacing={0} style={{padding: 0}}>
                 <Grid item >
                   <ArtistList/>
