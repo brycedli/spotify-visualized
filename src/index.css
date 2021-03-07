@@ -136,7 +136,7 @@ div.dark_mode{
   div.visualView {
     height: calc(100vw - 20px);
     width: calc(100vw - 20px);
-    max-height: calc(100vh - 110px);
+    max-height: calc(50vh - 110px);
   }
 }
 
@@ -155,26 +155,33 @@ ul.listings, li.listings {
   list-style-type: none;
   list-style-position: inside;
   padding-left: 0;
-  width: 300px;
+  width: 260px;
   margin-block-start: 0;
+}
+
+ul.listings li div:hover {
+  background-color: #111;
 }
 div.listpanelcontainer {
   width: 300px;
   height: calc(100vh - 102px);
+  overflow: scroll;
 }
 div.listingpanel {
   margin-bottom: 20px;
 }
 
 div.listings_min {
-  height: calc(30vh - 140px);
-  overflow: scroll;
+  height: calc(50vh - 140px);
+  width: 300px;
+  overflow: hidden;
   padding: 0px 20px;
 }
 
 div.listings_max {
-  height: calc(70vh - 140px);
-  overflow: scroll;
+  /* height: calc(70vh - 140px); */
+  width: 300px;
+  overflow: hidden;
   padding: 0px 20px;
 }
 
@@ -223,7 +230,7 @@ div.listSeeMoreMask {
 
 div.disableSeeMoreButton { 
   pointer-events: none; 
-  color: #666;
+  color: #000;
 }
 
 div.listSeeMoreButton:hover {

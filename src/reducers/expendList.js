@@ -1,4 +1,4 @@
-const expendList = (state = 'ARTIST', action) => {
+const expendList = (state = '', action) => { //ARTIST
   switch (action.type) {
     case 'TOGGLE_LIST':
       return action.expendList

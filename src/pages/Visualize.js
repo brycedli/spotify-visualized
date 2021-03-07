@@ -18,8 +18,7 @@ import {minimize_exec} from '../libs/util'
 //https://fonts.google.com/specimen/Titillium+Web?preview.text_type=custom
 //https://gero3.github.io/facetype.js/
 
-const RESET_LOCATION_AFTER_OAUTH = process.env.RESET_LOCATION_AFTER_OAUTH == 'true';
-
+const RESET_LOCATION_AFTER_OAUTH = process.env.REACT_APP_RESET_LOCATION_AFTER_OAUTH == 'true';
 var lableFont = null
 new THREE.FontLoader().load( '/fonts/Titillium Web_Bold.json', function ( font ) {
   lableFont = font;

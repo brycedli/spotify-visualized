@@ -59,13 +59,13 @@ ArtistList.propTypes = {
 ArtistList.defaultProps = {
   artists: [
   ],
-  toggleFullList: true
+  toggleFullList: false
 }
 
 const mapStateToProps = (state) => {
   //console.log('state',state);
   return {
-    toggleFullList: state.expendList == 'ARTIST' || state.expendList == null,
+    toggleFullList: state.expendList == 'ARTIST', // || state.expendList == null,
     artists: state.artists
   };
 }
