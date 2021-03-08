@@ -24,12 +24,16 @@ new THREE.FontLoader().load( '/fonts/Titillium Web_Bold.json', function ( font )
   lableFont = font;
 })
 
+const labelBaseScale = 0.01;
+
 class ThreeJsComponent extends Component {
 
   constructor (props){
     super(props);
     this.particles = new Map();
     this.particleRenders = new Map();
+    this.particleLabelRenders = new Map();
+    
     
     this.artists = new Map();
     this.songs = new Map();
@@ -65,8 +69,12 @@ class ThreeJsComponent extends Component {
       }
     };
     this.resetFocus = this.resetFocus.bind(this);
+    this.addLabel = this.addLabel.bind(this);
+    this.makeLabelCanvas = this.makeLabelCanvas.bind(this);
+    this.addHelperLabel = this.addHelperLabel.bind(this);
     const _this_renderRef = this.renderRef;
     const _this_updateRenderer = this.updateRenderer(_this_renderRef);
+  
     window.addEventListener('resize', minimize_exec(_this_updateRenderer, 200));
 
   }
@@ -127,8 +135,6 @@ class ThreeJsComponent extends Component {
 
 
   focusObjects(songIdMap) {
-    // const mesh = this.particleRenders.get(songId);
-    // const particle = this.particles.get(songId);
 
     this.particleRenders.forEach((song,id)=>{
       if (songIdMap.has(id)) {
@@ -141,6 +147,22 @@ class ThreeJsComponent extends Component {
       }
       
     });
+    this.particleLabelRenders.forEach((label,id)=>{
+      if (songIdMap.has(id)) {
+        console.log('focus label', label, id);
+        //song.visible = true;
+        label.material.opacity = 1; 
+        label.scale.x = label.userData.prefScaleW * 3;
+        label.scale.y = label.userData.prefScaleH * 3;
+
+      } else {
+        //song.visible = false;
+        label.material.opacity = 0.1; 
+      }
+      
+    });
+    
+
     this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
 
   }
@@ -151,6 +173,14 @@ class ThreeJsComponent extends Component {
       //song.visible = true;
       song.material.opacity = 1; 
     });
+    this.particleLabelRenders.forEach((label,id)=>{
+      //label.visible = true;
+      label.material.opacity = 1; 
+      label.scale.x = label.userData.prefScaleW;
+      label.scale.y = label.userData.prefScaleH;
+    });
+    
+
     this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
   }
   focusSong(songId) {
@@ -180,6 +210,80 @@ class ThreeJsComponent extends Component {
     }
   }
 
+  addHelperLabel (content, labelGeometry){
+    const canvas = this.makeLabelCanvas(32, content);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    texture.wrapS = THREE.ClampToEdgeWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+
+    const labelMaterial = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true
+    });
+    const label = new THREE.Mesh(labelGeometry, labelMaterial);
+    const labelBaseScale = 0.1;
+    label.scale.x = canvas.width * labelBaseScale;
+    label.scale.y = canvas.height * labelBaseScale;
+
+    return label;
+  }
+
+  makeLabelCanvas(size, name) {
+    const borderSize = 2;
+    const ctx = document.createElement('canvas').getContext('2d');
+    const font = `${size}px Arial`;
+    ctx.font = font;
+    // measure how long the name will be
+    const doubleBorderSize = borderSize * 2;
+    const width = ctx.measureText(name).width + doubleBorderSize;
+    const height = size + doubleBorderSize;
+    ctx.canvas.width = width;
+    ctx.canvas.height = height;
+
+    // need to set font again after resizing canvas
+    ctx.font = font;
+    ctx.textBaseline = 'top';
+    // ctx.textAlign = 'center';
+    // ctx.imageSmoothingEnabled = true;
+    // ctx.fillStyle = 'blue';
+    // ctx.fillRect(0, 0, width, height);
+
+    // scale to fit but don't stretch
+    // const scaleFactor = Math.min(1, baseWidth / textWidth);
+    // ctx.translate(0, height / 2);
+    // ctx.scale(scaleFactor, 1);
+    
+    ctx.fillStyle = 'white';
+    ctx.fillText(name, borderSize, borderSize);
+    
+    return ctx.canvas;
+  }
+
+  addLabel(content, position, distance , size) {
+    const canvas = this.makeLabelCanvas(size, content);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    texture.wrapS = THREE.ClampToEdgeWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+
+    const labelMaterial = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthTest: false,
+    });
+    const label = new THREE.Sprite(labelMaterial);
+    label.userData = { prefScaleW: canvas.width  * labelBaseScale, prefScaleH: canvas.height * labelBaseScale };
+
+    label.scale.x = canvas.width * labelBaseScale;
+    label.scale.y = canvas.height * labelBaseScale;
+    label.position.x = position.x;
+    label.position.y = position.y - distance - 1;
+    label.position.z = position.z;
+
+    return label;
+  }
+
   renderParticle(particle){
 
     const pop = particle.trackData.popularity + 1;
@@ -201,6 +305,10 @@ class ThreeJsComponent extends Component {
     this.renderRef.scene.add(song);
     this.renderRef.controls.update();
   
+    var label = this.addLabel(particle.trackData.name, song.position, particle.trackData.popularity/30, size*64);
+    this.renderRef.scene.add(label);
+    this.particleLabelRenders.set(particle.trackData.id, label);
+    
     this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
   }
 
@@ -257,8 +365,10 @@ class ThreeJsComponent extends Component {
 
     const max_artist = 20;
     let _this = this;
-    getTopSongs(function(data_particles){
-      console.log('top songs',data_particles, _particles.size);
+
+    //get top songs then artists
+    getTopSongs(function(data_particles , hasNext){
+      console.log('top songs',data_particles, _particles.size, 'hasNext',hasNext);
       const songBatch = [];
       data_particles.forEach(function(value, key) {
         if(_particles.get(key) != null){
@@ -290,78 +400,51 @@ class ThreeJsComponent extends Component {
         _dispatch(addSongs(songBatch));
       }
       
-    });
-
-    getPlaylistSongs(function(data_particles){
-      let artistIds = [];
-      const songBatch = [];
-      //console.log(data_particles);
-      data_particles.forEach(function(value, key) {
-        if(_particles.get(key) != null){
-          //console.log("skipped");
-          return;
-        }
-        _particles.set(key, value);
-        _this.renderParticle(value);
-        const item = extractSongFromParticle(value);
-        if (item!=null && !songsToDisplay.has(item.id)) {
-          songsToDisplay.set(item.id,item);
-          songBatch.push(item);
-        } 
-
-        if (value.trackData != null && value.trackData.artists != null) {
-          value.trackData.artists.forEach(a =>{
-              //console.log(a);
-              if (!_artists.has(a.id)) {
-                const _newArtist = new Map();
-                _newArtist.set('name',a.name);
-                _newArtist.set('songs',new Map());
-                _artists.set(a.id, _newArtist);
-              } 
-              _artists.get(a.id).get('songs').set(value.trackData.id, value.trackData);
-
+      if (hasNext) {
+        return;
+      }
+      //then get artists
+      console.log("Get Top artists:");
+      getTopArtists((artistdata)=>{
+        const artistBatch = [];
+        let artistIds = [];
+        console.log("Top artists:" , artistdata);
+        if (artistdata.length > 0) {
+          artistdata.forEach(a=>{
+            if (a.id == null || a.id == '') {
+              return;
+            }
+            const item = {id:a.id,name:a.name,thumbnail_url:a.images[2].url,genre:a.genres.join(', ')};
+            if (!artistToDisplay.has(a.id)) {
+              // if (_artists.has(a.id)) {
+              //   const songs = Array.from(_artists.get(a.id).get('songs').keys());
+              //   item['songs'] = songs;
+              // } else {
+              //   item['songs'] = [];
+              // }
+              artistToDisplay.set(a.id,item);
+              artistBatch.push(item);
+              //todo: add song id list
+              //_dispatch(addArtists(item));
+            } 
+            
+            if (artistIds.length < max_artist) {
+              artistIds.push(a.id);
+            }
+          });
+          
+        } else {
+            //use existing artist list
+            _artists.forEach((v,k)=>{
               if (artistIds.length < max_artist) {
-                artistIds.push(a.id);
+                artistIds.push(k);
               }
             });
         }
-        //console.log('value.trackData',value.trackData);
-      });
-      if (songBatch.length > 0) {
-        _dispatch(addSongs(songBatch));
-      }
-      
-
-      //console.log( 'artistIds', artistIds);
-      //get top artist _artists
-      
-      
-      getTopArtists((artistdata)=>{
-        const artistBatch = [];
-        console.log("Top artists:" , artistdata);
-        artistdata.forEach(a=>{
-          if (a.id == null || a.id == '') {
-            return;
-          }
-          const item = {id:a.id,name:a.name,thumbnail_url:a.images[2].url,genre:a.genres.join(', ')};
-          if (!artistToDisplay.has(a.id)) {
-            // if (_artists.has(a.id)) {
-            //   const songs = Array.from(_artists.get(a.id).get('songs').keys());
-            //   item['songs'] = songs;
-            // } else {
-            //   item['songs'] = [];
-            // }
-            artistToDisplay.set(a.id,item);
-            artistBatch.push(item);
-            //todo: add song id list
-            //_dispatch(addArtists(item));
-          } 
-          
-        });
 
         if (artistIds.length > 0) {
           getArtists((artistdata)=>{
-            console.log("Top artists from song list:" , artistdata);
+            //console.log("artists from list:" , artistIds);
             const artistBatch = [];
             artistdata.forEach(a=>{
               if (a.id == null || a.id == '') {
@@ -377,16 +460,56 @@ class ThreeJsComponent extends Component {
                 }
                 artistToDisplay.set(a.id,item);
                 artistBatch.push(item);
-                //_dispatch(addArtists(item));
+                // _dispatch(addArtists(item));
               } 
   
             });
             _dispatch(addArtists(artistBatch));
+
+            // // get some songs from playlists
+            // getPlaylistSongs(function(data_particles){
+            //   const songBatch = [];
+            //   //console.log(data_particles);
+            //   data_particles.forEach(function(value, key) {
+            //     if(_particles.get(key) != null){
+            //       return;
+            //     }
+            //     _particles.set(key, value);
+            //     _this.renderParticle(value);
+            //     const item = extractSongFromParticle(value);
+            //     if (item!=null && !songsToDisplay.has(item.id)) {
+            //       songsToDisplay.set(item.id,item);
+            //       songBatch.push(item);
+            //     } 
+
+            //     if (value.trackData != null && value.trackData.artists != null) {
+            //       value.trackData.artists.forEach(a =>{
+            //           //console.log(a);
+            //           if (!_artists.has(a.id)) {
+            //             const _newArtist = new Map();
+            //             _newArtist.set('name',a.name);
+            //             _newArtist.set('songs',new Map());
+            //             _artists.set(a.id, _newArtist);
+            //           } 
+            //           _artists.get(a.id).get('songs').set(value.trackData.id, value.trackData);
+            //         });
+            //     }
+            //   });
+            //   if (songBatch.length > 0) {
+            //     _dispatch(addSongs(songBatch));
+            //   }
+            // });
+
           }, artistIds);
         }
         _dispatch(addArtists(artistBatch));
       });
+
     });
+
+
+
+    
 
     this.renderRef.scene = new THREE.Scene();
     this.renderRef.camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -435,58 +558,41 @@ class ThreeJsComponent extends Component {
     // this.renderRef.scene.add(cube);
     const labelGeometry = new THREE.PlaneBufferGeometry(1, 1);
 
-    function makeLabelCanvas(size, name) {
-      const borderSize = 2;
-      const ctx = document.createElement('canvas').getContext('2d');
-      const font = `${size}px Arial`;
-      ctx.font = font;
-      // measure how long the name will be
-      const doubleBorderSize = borderSize * 2;
-      const width = ctx.measureText(name).width + doubleBorderSize;
-      const height = size + doubleBorderSize;
-      ctx.canvas.width = width;
-      ctx.canvas.height = height;
-      ctx.font = font;
-      ctx.textBaseline = 'middle';
-      ctx.translate(0, height / 2);      
-      ctx.fillStyle = 'white';
-      ctx.fillText(name, borderSize, borderSize);
+    // function makeLabelCanvas(size, name) {
+    //   const borderSize = 2;
+    //   const ctx = document.createElement('canvas').getContext('2d');
+    //   const font = `${size}px Arial`;
+    //   ctx.font = font;
+    //   // measure how long the name will be
+    //   const doubleBorderSize = borderSize * 2;
+    //   const width = ctx.measureText(name).width + doubleBorderSize;
+    //   const height = size + doubleBorderSize;
+    //   ctx.canvas.width = width;
+    //   ctx.canvas.height = height;
+    //   ctx.font = font;
+    //   ctx.textBaseline = 'middle';
+    //   ctx.translate(0, height / 2);      
+    //   ctx.fillStyle = 'white';
+    //   ctx.fillText(name, borderSize, borderSize);
       
-      return ctx.canvas;
-    }
+    //   return ctx.canvas;
+    // }
 
-    function addHelperLabel (content){
-      const canvas = makeLabelCanvas(32, content);
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.minFilter = THREE.LinearFilter;
-      texture.wrapS = THREE.ClampToEdgeWrapping;
-      texture.wrapT = THREE.ClampToEdgeWrapping;
+    
 
-      const labelMaterial = new THREE.MeshBasicMaterial({
-          map: texture,
-          transparent: true
-      });
-      const label = new THREE.Mesh(labelGeometry, labelMaterial);
-      const labelBaseScale = 0.1;
-      label.scale.x = canvas.width * labelBaseScale;
-      label.scale.y = canvas.height * labelBaseScale;
-
-      return label;
-    }
-
-    let xLabel = addHelperLabel("0 ⟵energy⟶ 100");
+    let xLabel = this.addHelperLabel("0 ⟵energy⟶ 100", labelGeometry);
     xLabel.position.x = 50;
     xLabel.position.y = 10;
     xLabel.position.z = 100;
     this.renderRef.scene.add(xLabel);
 
-    let yLabel = addHelperLabel("0 ⟵valence⟶ 100");
+    let yLabel = this.addHelperLabel("0 ⟵valence⟶ 100",labelGeometry);
     yLabel.position.x = 10;
     yLabel.position.y = 50;
     yLabel.rotation.z = 3.141/2;
     this.renderRef.scene.add(yLabel);
 
-    let zLabel = addHelperLabel("100 ⟵acousticness⟶ 0");
+    let zLabel = this.addHelperLabel("100 ⟵acousticness⟶ 0",labelGeometry);
     zLabel.position.x = 0;
     zLabel.position.y = 10;
     zLabel.position.z = 50;
@@ -494,14 +600,14 @@ class ThreeJsComponent extends Component {
     this.renderRef.scene.add(zLabel);
 
     
-    let xLabelBack = addHelperLabel("100 ⟵energy⟶ 0");
+    let xLabelBack = this.addHelperLabel("100 ⟵energy⟶ 0",labelGeometry);
     xLabelBack.position.x = 50;
     xLabelBack.position.y = 10;
     xLabelBack.position.z = 100;
     xLabelBack.rotation.y = -3.141;
     this.renderRef.scene.add(xLabelBack);
 
-    let yLabelBack = addHelperLabel("0 ⟵valence⟶ 100");
+    let yLabelBack = this.addHelperLabel("0 ⟵valence⟶ 100",labelGeometry);
     yLabelBack.position.x = 10;
     yLabelBack.position.y = 50;
     yLabelBack.rotation.x = -3.141;
@@ -509,7 +615,7 @@ class ThreeJsComponent extends Component {
 
     this.renderRef.scene.add(yLabelBack);
 
-    let zLabelBack = addHelperLabel("0 ⟵acousticness⟶ 100");
+    let zLabelBack = this.addHelperLabel("0 ⟵acousticness⟶ 100",labelGeometry);
     zLabelBack.position.x = 0;
     zLabelBack.position.y = 10;
     zLabelBack.position.z = 50;

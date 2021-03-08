@@ -18,7 +18,7 @@ const url_top_song = 'https://api.spotify.com/v1/me/top/tracks?time_range=long_t
 const url_playlists = 'https://api.spotify.com/v1/me/playlists';
 const url_playlistContent = 'https://api.spotify.com/v1/playlists/';
 const url_artist = 'https://api.spotify.com/v1/artists';
-const url_top_artist = "https://api.spotify.com/v1/me/top/artists?limit=50"
+const url_top_artist = "https://api.spotify.com/v1/me/top/artists"
 
 export const CONNECTION_URL = API_URL + '/authorize?client_id=' + CLIENT_ID +
 '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
@@ -126,8 +126,8 @@ function playlistContent(url, callbackPlaylist){ //initally called once per play
 
 export const getPlaylistSongs = (callback, url = url_playlists) => {
   
-  const MAX_PL_BATCH = 10;
-  const MAX_PL_CONTENT_BATCH = 10;
+  const MAX_PL_BATCH = 1;
+  const MAX_PL_CONTENT_BATCH = 1;
   let playlistBatchCnt = 0;
   fetch(url,{
     method: 'GET',
@@ -286,7 +286,7 @@ export const getTopSongs =  (callback, url = url_top_song) => {
           particleFromBatch.addFeatureData(item);
           particles.set(item.id, particleFromBatch);
         });
-        callback(particles);
+        callback(particles, data.next);
       }
       getFeatureData(whenFeatureDone, songIDsBatch); //should callback whenFeatureDone when done getting features. good name haha
 
