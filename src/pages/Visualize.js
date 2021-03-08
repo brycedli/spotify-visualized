@@ -138,7 +138,7 @@ class ThreeJsComponent extends Component {
 
     this.particleRenders.forEach((song,id)=>{
       if (songIdMap.has(id)) {
-        console.log('focus song', song, id);
+        // console.log('focus song', song, id);
         //song.visible = true;
         song.material.opacity = 1; 
       } else {
@@ -149,7 +149,7 @@ class ThreeJsComponent extends Component {
     });
     this.particleLabelRenders.forEach((label,id)=>{
       if (songIdMap.has(id)) {
-        console.log('focus label', label, id);
+        // console.log('focus label', label, id);
         //song.visible = true;
         label.material.opacity = 1; 
         label.scale.x = label.userData.prefScaleW * 3;
@@ -168,7 +168,7 @@ class ThreeJsComponent extends Component {
   }
 
   resetFocus(){
-    console.log('reset focus');
+    // console.log('reset focus');
     this.particleRenders.forEach((song,id)=>{
       //song.visible = true;
       song.material.opacity = 1; 
@@ -196,7 +196,7 @@ class ThreeJsComponent extends Component {
       return;
     }
     
-    console.log('focus artist', artisId, 'songs', this.artists.get(artisId).get('songs'));
+    // console.log('focus artist', artisId, 'songs', this.artists.get(artisId).get('songs'));
     this.focusObjects(this.artists.get(artisId).get('songs'));
   }
 
@@ -368,7 +368,7 @@ class ThreeJsComponent extends Component {
 
     //get top songs then artists
     getTopSongs(function(data_particles , hasNext){
-      console.log('top songs',data_particles, _particles.size, 'hasNext',hasNext);
+      // console.log('top songs',data_particles, _particles.size, 'hasNext',hasNext);
       const songBatch = [];
       data_particles.forEach(function(value, key) {
         if(_particles.get(key) != null){
@@ -404,11 +404,11 @@ class ThreeJsComponent extends Component {
         return;
       }
       //then get artists
-      console.log("Get Top artists:");
+      // console.log("Get Top artists:");
       getTopArtists((artistdata)=>{
         const artistBatch = [];
         let artistIds = [];
-        console.log("Top artists:" , artistdata);
+        // console.log("Top artists:" , artistdata);
         if (artistdata.length > 0) {
           artistdata.forEach(a=>{
             if (a.id == null || a.id == '') {
