@@ -29,9 +29,20 @@ p.about_text {
   line-height: 17px;
 }
 
+h1.about_text {
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 17px;
+}
+
 div.about_text {
   width: 600px;
   padding-top: 140px;
+}
+
+div.app_header {
+  padding: 33px
 }
 
 h1.app_header {
@@ -69,52 +80,11 @@ div.welcomePopup {
 }
 
 div.welcome {
-  height: 400px;
+  height: 460px;
   margin: auto;
   padding: 0 0 100px 0;
 }
 
-@media screen and (min-width: 600px) {
-  h1.welcome {
-    font-size: 96px;
-    line-height: 100px;
-  }
-  div.welcome {
-    width: 578px;
-  }
-  #menu_links a{
-    padding-inline: 30px 0px;
-  }
-}
-
-@media screen and (max-width: 600px) {
-  h1.welcome {
-    font-size: 64px;
-    line-height: 68px;
-  }
-  div.welcome {
-    width: 400px;
-  }
-  #menu_links a{
-    padding-inline: 0px 30px;
-  }
-}
-/* @media screen and (max-width: 500px) {
-  h1.welcome {
-    font-size: 48px;
-    line-height: 52px;
-  }
-  div.welcome {
-    width: 300px;
-  }
-
-  #menu_links{
-    text-align: start;
-  }
-  #menu_links a{
-    padding-inline: 0px 30px;
-  }
-} */
 
 h1.welcome {
   font-weight: bold;
@@ -134,24 +104,7 @@ div.dark_mode{
   height: 100vh;
   background-color: #000;
   flex-grow: 1;
-}
-
-
-
-@media screen and (min-width: 600px) {
-  div.visualView {
-    height: calc(100vw - 320px);
-    width: calc(100vw - 320px);
-    max-height: calc(100vh - 110px);
-  }
-}
-
-@media screen and (max-width: 600px) {
-  div.visualView {
-    height: calc(100vw - 20px);
-    width: calc(100vw - 20px);
-    max-height: calc(50vh - 110px);
-  }
+  position: fixed;
 }
 
 
@@ -258,4 +211,281 @@ span.listSeeMore {
   margin-top: -6px;
   display: inline-block;
   /* color: white; */
+}
+
+
+
+
+/* modify based on screen size */
+@media screen and (orientation: landscape) 
+   and (max-height: 320px) {
+    div.about_text {
+      padding-top: 20px;
+      width: calc(100vw - 80px);
+    }
+    div.app_header {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+}
+@media screen and (orientation: portrait) 
+  and (max-width: 320px) {
+    div.about_text {
+      padding-top: 40px;
+      width: calc(100vw - 80px);
+    }
+    div.app_header {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+}
+
+@media screen and (orientation: landscape)
+   and (min-height: 321px) {
+    div.about_text {
+      padding-top: 40px;
+      width: calc(100vw - 100px);
+    }
+    div.app_header {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+
+}
+
+
+@media screen and (orientation: portrait)
+   and (min-width: 320px) {
+  div.about_text {
+    padding-top: 40px;
+    width: calc(100vw - 80px);
+  }
+  div.app_header {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+
+@media screen and (min-width: 560px) and (orientation: landscape){
+  h1.welcome {
+    font-size: 96px;
+    line-height: 100px;
+  }
+  div.welcome {
+    width: 578px;
+  }
+  #menu_links a{
+    padding-inline: 30px 0px;
+  }
+  div.visualView {
+    height: calc(100vw - 320px);
+    width: calc(100vw - 320px);
+    max-height: calc(100vh - 110px);
+  }
+}
+
+@media screen and (max-width: 560px) and (orientation: landscape) {
+  div.app_header {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  div.dark_mode{
+    flex-grow: 1;
+    position: fixed;
+  }
+
+  h1.welcome {
+    font-size: 64px;
+    line-height: 68px;
+  }
+  div.welcome {
+    width: 400px;
+  }
+  
+  #menu_links a{
+    padding-inline: 0px 30px;
+  }
+
+  div.listpanelcontainer {
+    width: 100vw;
+    height: calc(100vh - 102px);
+    overflow: scroll;
+  }
+  div.visualView {
+    height: calc(100vw - 20px);
+    width: calc(100vw - 0px);
+    max-height: calc(50vh - 110px);
+    margin:0px;
+  }
+}
+@media screen and (max-width: 320px)  and (orientation: landscape) {
+  div.app_header {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  div.dark_mode{
+    flex-grow: 1;
+    position: fixed;
+  }
+  h1.app_header {
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 16px;
+    margin: 0px 0px 4px 0px
+  }
+  p.about_text {
+    width: 240px;
+    padding-top: 40px;
+  }
+
+  #menu_links a{
+    font-size: 10px;
+    line-height: 14px;
+  }
+  
+  div.listpanelcontainer {
+    width: 100vw;
+    height: calc(100vh - 102px);
+    overflow: scroll;
+  }
+  div.visualView {
+    height: calc(100vw - 20px);
+    width: calc(100vw - 0px);
+    max-height: calc(50vh - 110px);
+    margin:0px;
+  }
+  h1.welcome {
+    font-size: 32px;
+    line-height: 48px;
+  }
+  div.welcome {
+    width: 300px;
+  }
+
+  #menu_links{
+    text-align: start;
+  }
+  #menu_links a{
+    padding-inline: 0px 24px;
+  }
+}
+
+
+
+
+
+
+
+@media screen and (min-width: 560px) and (orientation: portrait){
+  h1.welcome {
+    font-size: 96px;
+    line-height: 100px;
+  }
+  div.welcome {
+    width: 578px;
+  }
+  #menu_links a{
+    padding-inline: 30px 0px;
+  }
+  div.visualView {
+    height: calc(100vh - 110px);
+    width: calc(100vw - 320px);
+    max-height: calc(100vh - 110px);
+  }
+}
+
+@media screen and (max-width: 560px) and (orientation: portrait) {
+  div.app_header {
+    padding-left: 32px;
+    padding-right: 32px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  h1.app_header {
+    font-weight: bold;
+    font-size: 20px;
+    line-height: 20px;
+    margin: 0px 0px 4px 0px
+  }
+  div.dark_mode{
+    flex-grow: 1;
+    position: fixed;
+  }
+
+  h1.welcome {
+    font-size: 64px;
+    line-height: 68px;
+  }
+  div.welcome {
+    width: 90vw;
+  }
+  
+  #menu_links a{
+    padding-inline: 0px 30px;
+  }
+
+  div.listpanelcontainer {
+    width: 100vw;
+    height: calc((100vh / 3 * 2) - 104px);
+    overflow: scroll;
+  }
+  div.visualView {
+    height: calc(100vh / 3);
+    width: calc(100vw - 0px);
+    /* max-height: calc(50vh - 110px); */
+    margin:0px;
+  }
+}
+@media screen and (max-width: 320px)  and (orientation: portrait) {
+  div.app_header {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  div.dark_mode{
+    flex-grow: 1;
+    position: fixed;
+  }
+  h1.app_header {
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 16px;
+    margin: 0px 0px 4px 0px
+  }
+  p.about_text {
+    width: 240px;
+    padding-top: 40px;
+  }
+
+  #menu_links a{
+    font-size: 10px;
+    line-height: 14px;
+  }
+  
+  div.listpanelcontainer {
+    width: 100vw;
+    height: calc((100vh / 3 * 2) - 104px);
+    overflow: scroll;
+  }
+  div.visualView {
+    height: calc(100vw - 20px);
+    width: calc(100vw - 0px);
+    max-height: calc(50vh - 110px);
+    margin:0px;
+  }
+  h1.welcome {
+    font-size: 32px;
+    line-height: 48px;
+  }
+  div.welcome {
+    width: 90vw;
+  }
+
+  #menu_links{
+    text-align: start;
+  }
+  #menu_links a{
+    padding-inline: 0px 24px;
+  }
 }

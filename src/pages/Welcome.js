@@ -22,7 +22,7 @@ const Welcome = () => {
         backgroundImage: 'url(/welcome-bg.png)'
       }}
     >
-      <Grid container spacing={0} style={{padding: 33}}>
+      <Grid container spacing={0}  className="app_header">
         <Grid item xs>
         </Grid>
         <Grid item sm={6}>

@@ -143,7 +143,7 @@ class ThreeJsComponent extends Component {
         song.material.opacity = 1; 
       } else {
         //song.visible = false;
-        song.material.opacity = 0.1; 
+        song.material.opacity = 0.2; 
       }
       
     });
@@ -157,7 +157,7 @@ class ThreeJsComponent extends Component {
 
       } else {
         //song.visible = false;
-        label.material.opacity = 0.1; 
+        label.material.opacity = 0.2; 
       }
       
     });
@@ -641,7 +641,7 @@ class ThreeJsComponent extends Component {
     return (
       <div className="dark_mode">
 
-        <Grid container spacing={0} style={{padding: 33}}>
+        <Grid container spacing={0} className="app_header">
           <Grid item sm={6}  xs={12} >
             <h1 className="app_header">Your Spotify Musicscape</h1>
           </Grid>
