@@ -1,16 +1,28 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import { expendList, focusArtist } from '../actions'
+import { reportListToggleStatus, focusArtist } from '../actions'
 import PropTypes from 'prop-types'
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import ExpandLess from '@material-ui/icons/ExpandLess';
 import Artist from './Artist'
 
 
 class ArtistList extends React.Component {
 
+  constructor(props){
+    super(props)
+    this.state = {toggleFullList : props.toggleFullList}
+    this.toggleList = this.toggleList.bind(this)
+  }
+
+  toggleList = ()=>{
+    this.setState({toggleFullList:!this.state.toggleFullList})
+    this.props.reportStatus(this.state.toggleFullList)
+  }
+
   render() {
-    const { artists, toggleFullList , onClickToExpend, onHoverToFocusArtist} = this.props;
+    const { artists, onHoverToFocusArtist } = this.props;
+    const { toggleFullList } = this.state;
 
     return (
       <div className="listingpanel">
@@ -31,17 +43,15 @@ class ArtistList extends React.Component {
           </ul>
         </div>
 
-        <div className='listSeeMore'>
-          <div className='listSeeMoreMask'></div>
-          <div className={toggleFullList ? 'disableSeeMoreButton' : 'listSeeMoreButton' }
-          onClick={onClickToExpend}
-          >
-            <span className='listSeeMore'>
-              SEE MORE ARTISTS
+        <div className='listToggle'>
+          <div className='listToggleMask'></div>
+          <div className='listToggleButton' onClick={this.toggleList} >
+            <span className='listToggle'>
+            {toggleFullList ? 'SEE LESS ARTISTS' : 'SEE MORE ARTISTS'}
             </span>
             <br />
-            <span className='listSeeMore'>
-              <ExpandMore />
+            <span className='listToggle'>
+            {toggleFullList ? <ExpandLess /> : <ExpandMore />}
             </span>
           </div>
         </div>
@@ -53,33 +63,25 @@ class ArtistList extends React.Component {
 ArtistList.propTypes = {
   artists: PropTypes.array.isRequired,
   toggleFullList: PropTypes.bool.isRequired,
-  onHoverToFocusArtist: PropTypes.func.isRequired
+  onHoverToFocusArtist: PropTypes.func.isRequired,
+  reportStatus: PropTypes.func.isRequired
 }
 
 ArtistList.defaultProps = {
-  artists: [
-  ],
+  artists: [],
   toggleFullList: false
 }
 
 const mapStateToProps = (state) => {
-  //console.log('state',state);
   return {
-    toggleFullList: state.expendList == 'ARTIST', // || state.expendList == null,
+    // toggleFullList: state.expendList == 'ARTIST', // || state.expendList == null,
     artists: state.artists
   };
 }
 
 const mapDispatchToProps = dispatch => ({
   onHoverToFocusArtist: (id) => dispatch(focusArtist(id)),
-  onClickToExpend: () => dispatch(expendList('ARTIST'))
+  reportStatus: (status) => dispatch(reportListToggleStatus('ARTIST',status))
 })
-
-// const mapDispatchToProps = dispatch => {
-//   console.log('mapDispatchToProps called');
-//   return {
-//     expendList: toggleFullList => dispatch(toggleFullList?'ARTIST':'')
-//   };
-// }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ArtistList) 

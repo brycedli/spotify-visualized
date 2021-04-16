@@ -167,6 +167,10 @@ class ThreeJsComponent extends Component {
 
   }
 
+  onListPanelScroll(event){
+    console.log(event);
+  }
+
   resetFocus(){
     // console.log('reset focus');
     this.particleRenders.forEach((song,id)=>{
@@ -660,6 +664,7 @@ class ThreeJsComponent extends Component {
           <Grid item >
             <div className="listpanelcontainer"
             onMouseLeave={this.resetFocus}
+            onScroll={this.onListPanelScroll}
             >
               <Grid container direction="column" spacing={0} style={{padding: 0}}>
                 <Grid item >
