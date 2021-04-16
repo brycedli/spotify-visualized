@@ -664,7 +664,7 @@ class ThreeJsComponent extends Component {
           <Grid item >
             <div className="listpanelcontainer"
             onMouseLeave={this.resetFocus}
-            onScroll={this.onListPanelScroll}
+            // onScroll={this.onListPanelScroll}
             >
               <Grid container direction="column" spacing={0} style={{padding: 0}}>
                 <Grid item >
