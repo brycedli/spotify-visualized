@@ -36,6 +36,7 @@ class SongList extends React.Component {
                 key={song.id}
                 {...song}
                 onHoverToFocusSongs={() => onHoverToFocusSongs(song.id)}
+                onLeaveToUnFocusSongs={() => onHoverToFocusSongs('')}
               />
             )}
           </ul>

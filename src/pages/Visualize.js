@@ -189,17 +189,25 @@ class ThreeJsComponent extends Component {
   }
   focusSong(songId) {
     // console.log('focus song', songId, 'mesh',this.particleRenders.get(songId), 'particle',this.particles.get(songId));
+    if (songId === '') {
+      this.resetFocus();
+      return;
+    }
     const objectMap = new Map();
     objectMap.set(songId, this.particleRenders.get(songId));
     this.focusObjects(objectMap);
   }
 
   focusArtist(artisId) {
+    if (artisId === '') {
+      this.resetFocus();
+      return;
+    }
     if (this.artists.get(artisId) == undefined || this.artists.get(artisId) == null) {
       console.log('no song found for artist', artisId);
       return;
     }
-    
+
     // console.log('focus artist', artisId, 'songs', this.artists.get(artisId).get('songs'));
     this.focusObjects(this.artists.get(artisId).get('songs'));
   }
@@ -291,7 +299,7 @@ class ThreeJsComponent extends Component {
   renderParticle(particle){
 
     const pop = particle.trackData.popularity + 1;
-    const size = particle.trackData.popularity/30;
+    const size = Math.max(particle.trackData.popularity/30, 0.001); //minimun size .1
     var geometry = new THREE.SphereGeometry(size, 10, 10);
     if (!particle.featureData){
       return;

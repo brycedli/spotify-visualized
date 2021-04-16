@@ -38,6 +38,7 @@ class ArtistList extends React.Component {
                 key={artist.id}
                 {...artist}
                 onHoverToFocusArtist={() => onHoverToFocusArtist(artist.id)}
+                onLeaveToUnFocusArtist={() => onHoverToFocusArtist('')}
               />
             )}
           </ul>

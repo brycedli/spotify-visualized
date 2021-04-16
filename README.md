@@ -6,13 +6,15 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### `yarn start`
+### start developement mode with .env.development
+`yarn run start`
 
+### with npm
 HOST=localhost PORT=3000 npm start
 
 ## Build docker image
 
-- for production
+- deployment to production
 ```shell
 # build image
 docker build -f Dockerfile.prod  -t musicscape:prod .

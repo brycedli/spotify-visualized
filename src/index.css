@@ -201,9 +201,9 @@ div.listToggleFixed {
   width: 300px;
   text-align: center;
   /* margin-top: -40px; */
-  position:absolute;
+  position:fixed;
   color: #FFF;
-  top: calc( 100vh - 83px );
+  top: calc( 100% - 83px );
 }
 div.listToggleMask {
   width: 100%;
