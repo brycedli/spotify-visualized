@@ -126,8 +126,8 @@ function playlistContent(url, callbackPlaylist){ //initally called once per play
 
 export const getPlaylistSongs = (callback, url = url_playlists) => {
   
-  const MAX_PL_BATCH = 1;
-  const MAX_PL_CONTENT_BATCH = 1;
+  const MAX_PL_BATCH = 5;
+  const MAX_PL_CONTENT_BATCH = 5;
   let playlistBatchCnt = 0;
   fetch(url,{
     method: 'GET',

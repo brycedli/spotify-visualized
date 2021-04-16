@@ -149,14 +149,14 @@ div.listingpanel {
 
 div.listings_min {
   height: calc(50vh - 140px);
-  width: 300px;
+  /* width: 300px; */
   overflow: hidden;
   padding: 0px 20px;
 }
 
 div.listings_max {
   /* height: calc(70vh - 140px); */
-  width: 300px;
+  /* width: 300px; */
   overflow: hidden;
   padding: 0px 20px;
 }
@@ -191,23 +191,32 @@ h2.listitem {
 }
 
 div.listToggle {
+  width: 100%;
   text-align: center;
   margin-top: -40px;
   position:relative;
   color: #FFF;
 }
-
-div.listToggleMask {
+div.listToggleFixed {
   width: 300px;
+  text-align: center;
+  /* margin-top: -40px; */
+  position:absolute;
+  color: #FFF;
+  top: calc( 100vh - 83px );
+}
+div.listToggleMask {
+  width: 100%;
   height: 40px;
   background: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0));
   position:relative;
 }
 
-/* div.disableSeeMoreButton { 
-  pointer-events: none; 
-  color: #000;
-} */
+div.listToggleButton { 
+  /* pointer-events: none;  */
+  background-color: black;
+  color: #FFF;
+}
 
 div.listToggleButton:hover {
   background-color: #111;
@@ -322,6 +331,9 @@ span.listToggle {
     height: calc(100vh - 104px  - 48px);
     overflow: scroll;
   }
+  div.listToggleFixed {
+    width: 100vw;
+  }
   div.visualView {
     height: calc(100vw - 20px);
     width: calc(100vw - 0px);
@@ -358,6 +370,9 @@ span.listToggle {
     width: 100vw;
     height: calc(100vh - 104px - 48px);
     overflow: scroll;
+  }
+  div.listToggleFixed {
+    width: 100vw;
   }
   div.visualView {
     height: calc(100vw - 20px);
@@ -440,6 +455,9 @@ span.listToggle {
     height: calc((100vh / 3 * 2) - 104px - 48px);
     overflow: scroll;
   }
+  div.listToggleFixed {
+    width: 100vw;
+  }
   div.visualView {
     height: calc(100vh / 3);
     width: calc(100vw - 0px);
@@ -476,6 +494,9 @@ span.listToggle {
     width: 100vw;
     height: calc((100vh / 3 * 2) - 104px - 48px );
     overflow: scroll;
+  }
+  div.listToggleFixed {
+    width: 100vw;
   }
   div.visualView {
     height: calc(100vw - 20px);

@@ -167,9 +167,9 @@ class ThreeJsComponent extends Component {
 
   }
 
-  onListPanelScroll(event){
-    console.log(event);
-  }
+  // onListPanelScroll(event){
+  //   console.log(event);
+  // }
 
   resetFocus(){
     // console.log('reset focus');
@@ -470,39 +470,39 @@ class ThreeJsComponent extends Component {
             });
             _dispatch(addArtists(artistBatch));
 
-            // // get some songs from playlists
-            // getPlaylistSongs(function(data_particles){
-            //   const songBatch = [];
-            //   //console.log(data_particles);
-            //   data_particles.forEach(function(value, key) {
-            //     if(_particles.get(key) != null){
-            //       return;
-            //     }
-            //     _particles.set(key, value);
-            //     _this.renderParticle(value);
-            //     const item = extractSongFromParticle(value);
-            //     if (item!=null && !songsToDisplay.has(item.id)) {
-            //       songsToDisplay.set(item.id,item);
-            //       songBatch.push(item);
-            //     } 
+            // get some songs from playlists
+            getPlaylistSongs(function(data_particles){
+              const songBatch = [];
+              // console.log(data_particles);
+              data_particles.forEach(function(value, key) {
+                if(_particles.get(key) != null){
+                  return;
+                }
+                _particles.set(key, value);
+                _this.renderParticle(value);
+                const item = extractSongFromParticle(value);
+                if (item!=null && !songsToDisplay.has(item.id)) {
+                  songsToDisplay.set(item.id,item);
+                  songBatch.push(item);
+                } 
 
-            //     if (value.trackData != null && value.trackData.artists != null) {
-            //       value.trackData.artists.forEach(a =>{
-            //           //console.log(a);
-            //           if (!_artists.has(a.id)) {
-            //             const _newArtist = new Map();
-            //             _newArtist.set('name',a.name);
-            //             _newArtist.set('songs',new Map());
-            //             _artists.set(a.id, _newArtist);
-            //           } 
-            //           _artists.get(a.id).get('songs').set(value.trackData.id, value.trackData);
-            //         });
-            //     }
-            //   });
-            //   if (songBatch.length > 0) {
-            //     _dispatch(addSongs(songBatch));
-            //   }
-            // });
+                if (value.trackData != null && value.trackData.artists != null) {
+                  value.trackData.artists.forEach(a =>{
+                      //console.log(a);
+                      if (!_artists.has(a.id)) {
+                        const _newArtist = new Map();
+                        _newArtist.set('name',a.name);
+                        _newArtist.set('songs',new Map());
+                        _artists.set(a.id, _newArtist);
+                      } 
+                      _artists.get(a.id).get('songs').set(value.trackData.id, value.trackData);
+                    });
+                }
+              });
+              if (songBatch.length > 0) {
+                _dispatch(addSongs(songBatch));
+              }
+            });
 
           }, artistIds);
         }

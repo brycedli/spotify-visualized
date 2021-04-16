@@ -41,7 +41,9 @@ class SongList extends React.Component {
           </ul>
         </div>
 
-        <div className='listToggle'>
+        <div 
+        className={toggleFullList ? 'listToggleFixed' : 'listToggle'}
+        >
           <div className='listToggleMask'></div>
           <div className='listToggleButton' onClick={this.toggleList} >
             <span className='listToggle'>
