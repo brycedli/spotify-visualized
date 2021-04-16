@@ -24,7 +24,8 @@ new THREE.FontLoader().load( '/fonts/Titillium Web_Bold.json', function ( font )
   lableFont = font;
 })
 
-const labelBaseScale = 0.01;
+const labelBaseScale = 0.018;
+const labelOpacity = 0.5;
 
 class ThreeJsComponent extends Component {
 
@@ -122,7 +123,7 @@ class ThreeJsComponent extends Component {
     });
     this.particleLabelRenders.forEach((label,id)=>{
       //label.visible = true;
-      label.material.opacity = 1; 
+      label.material.opacity = labelOpacity; 
       label.scale.x = label.userData.prefScaleW;
       label.scale.y = label.userData.prefScaleH;
     });
@@ -181,7 +182,7 @@ class ThreeJsComponent extends Component {
   }
 
   addHelperLabel (content, labelGeometry){
-    const canvas = this.makeLabelCanvas(32, content);
+    const canvas = this.makeLabelCanvas(250, content);
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
     texture.wrapS = THREE.ClampToEdgeWrapping;
@@ -192,7 +193,6 @@ class ThreeJsComponent extends Component {
         transparent: true
     });
     const label = new THREE.Mesh(labelGeometry, labelMaterial);
-    const labelBaseScale = 0.1;
     label.scale.x = canvas.width * labelBaseScale;
     label.scale.y = canvas.height * labelBaseScale;
 
@@ -202,12 +202,15 @@ class ThreeJsComponent extends Component {
   makeLabelCanvas(size, name) {
     const borderSize = 2;
     const ctx = document.createElement('canvas').getContext('2d');
+    //ctx.translate(0.5, 0.5);
+    ctx.imageSmoothingEnabled = false;
     const font = `${size}px Arial`;
     ctx.font = font;
     // measure how long the name will be
     const doubleBorderSize = borderSize * 2;
     const width = ctx.measureText(name).width + doubleBorderSize;
     const height = size + doubleBorderSize;
+    console.log('label size:',size, width,height);
     ctx.canvas.width = width;
     ctx.canvas.height = height;
 
@@ -231,7 +234,8 @@ class ThreeJsComponent extends Component {
   }
 
   addLabel(content, position, distance , size) {
-    const canvas = this.makeLabelCanvas(size, content);
+    const defaultSize = 32;
+    const canvas = this.makeLabelCanvas(defaultSize, content);
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
     texture.wrapS = THREE.ClampToEdgeWrapping;
@@ -240,13 +244,14 @@ class ThreeJsComponent extends Component {
     const labelMaterial = new THREE.SpriteMaterial({
         map: texture,
         transparent: true,
+        opacity: labelOpacity,
         depthTest: false,
     });
     const label = new THREE.Sprite(labelMaterial);
-    label.userData = { prefScaleW: canvas.width  * labelBaseScale, prefScaleH: canvas.height * labelBaseScale };
+    label.userData = { prefScaleW: canvas.width  * labelBaseScale * size / defaultSize, prefScaleH: canvas.height * labelBaseScale * size / defaultSize };
 
-    label.scale.x = canvas.width * labelBaseScale;
-    label.scale.y = canvas.height * labelBaseScale;
+    label.scale.x = canvas.width * labelBaseScale * size / defaultSize;
+    label.scale.y = canvas.height * labelBaseScale * size / defaultSize;
     label.position.x = position.x;
     label.position.y = position.y - distance - 1;
     label.position.z = position.z;
@@ -481,6 +486,8 @@ class ThreeJsComponent extends Component {
     this.renderRef.camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     this.renderRef.renderer = new THREE.WebGLRenderer();
+    this.renderRef.renderer.antialias = true;
+    //this.renderRef.renderer.setPixelRatio( window.devicePixelRatio );
     this.renderRef.renderer.setSize(window.innerWidth, window.innerHeight);
 
     // console.log(this.renderRef.mount);
