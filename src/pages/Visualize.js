@@ -184,7 +184,10 @@ class ThreeJsComponent extends Component {
       label.scale.y = label.userData.prefScaleH;
     });
     
-
+    // this.renderRef.camera.position.x = 340;
+    // this.renderRef.camera.position.y = 180;
+    // this.renderRef.camera.position.z = 180;
+    this.renderRef.camera.lookAt(new THREE.Vector3(50,50,50));
     this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
   }
   focusSong(songId) {
@@ -194,7 +197,10 @@ class ThreeJsComponent extends Component {
       return;
     }
     const objectMap = new Map();
-    objectMap.set(songId, this.particleRenders.get(songId));
+    const lookAtObj = this.particleRenders.get(songId);
+    objectMap.set(songId, lookAtObj);
+    // console.log(lookAtObj);
+    // this.renderRef.camera.lookAt(lookAtObj.position);
     this.focusObjects(objectMap);
   }
 
@@ -207,6 +213,10 @@ class ThreeJsComponent extends Component {
       console.log('no song found for artist', artisId);
       return;
     }
+    // this.renderRef.camera.position.x = 340;
+    // this.renderRef.camera.position.y = 180;
+    // this.renderRef.camera.position.z = 180;
+    // this.renderRef.camera.lookAt(new THREE.Vector3(50,50,50));
 
     // console.log('focus artist', artisId, 'songs', this.artists.get(artisId).get('songs'));
     this.focusObjects(this.artists.get(artisId).get('songs'));
@@ -533,7 +543,7 @@ class ThreeJsComponent extends Component {
     this.renderRef.mount.style.height = window.height - 200;
     this.renderRef.mount.appendChild(this.renderRef.renderer.domElement);
 
-    let initDist = 250;
+    // let initDist = 250;
     this.renderRef.camera.position.x = 340;
     this.renderRef.camera.position.y = 180;
     this.renderRef.camera.position.z = 180;
