@@ -44,96 +44,43 @@ class ThreeJsComponent extends Component {
       renderer: null,
       scene: null, 
       camera: null, 
-      mount: null,
-      resizeRendererToDisplaySize:  (_this_renderer, _this_mount) => {
-        if (_this_mount == null) {
-          return;
-        }
-        const _canvas = _this_renderer.domElement;
-        const _width = _this_mount.clientWidth;
-        const _height = _this_mount.clientHeight;
-        const _style_width = _this_mount.style.width;
-        const _style_height = _this_mount.style.height;
-        const needCanvasResize = _canvas.width !== _width || _canvas.height !== _height;
-        const needStyleResize = _canvas.style.width !== _style_width || _canvas.style.height !== _style_height;
-        
-        if (needCanvasResize) {
-          _this_renderer.setSize(_width, _height, false);
-        }
-
-        if (needStyleResize) {
-          _canvas.style.width = _style_width;
-          _canvas.style.height = _style_height;
-        }
-        return needCanvasResize;
-      }
+      mount: null
     };
+
+    this.resizeRendererToDisplaySize = this.resizeRendererToDisplaySize.bind(this)
+    this.requestRenderIfNotRequested = this.requestRenderIfNotRequested.bind(this);
     this.resetFocus = this.resetFocus.bind(this);
     this.addLabel = this.addLabel.bind(this);
     this.makeLabelCanvas = this.makeLabelCanvas.bind(this);
     this.addHelperLabel = this.addHelperLabel.bind(this);
-    const _this_renderRef = this.renderRef;
-    const _this_updateRenderer = this.updateRenderer(_this_renderRef);
-  
+
+    const _this_updateRenderer = this.updateRenderer;
     window.addEventListener('resize', minimize_exec(_this_updateRenderer, 200));
 
   }
-
-  // focusObject(songId) {
-  //   const mesh = this.particleRenders.get(songId);
-  //   const particle = this.particles.get(songId);
-  //   const _this_renderRef = this.renderRef;
-  //   let annimationFrames = 10;
-  //   const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
-
-  //   if (lableFont == null){
-  //     return;
-  //   }
-  //   const _text_geometry = new THREE.TextGeometry( particle.trackData.name, {
-  //     font: lableFont,
-  //     size: 12,
-  //     height: 1,
-  //     curveSegments: 48,
-  //     bevelEnabled: false
-  //   } );
-
-
-  //   const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 0.5, color: new THREE.Color(0.8, 0.8, 0.8) });
-  //   const textMesh = new THREE.Mesh( _text_geometry, material );
-  //   textMesh.position.x = mesh.position.x;
-  //   textMesh.position.y = mesh.position.y + 10;
-  //   textMesh.position.z = mesh.position.z;
-  //   textMesh.scale.x = 0.5;
-  //   textMesh.scale.y = 0.5;
-  //   textMesh.scale.z = 0.5;
-  //   textMesh.quaternion.copy(_this_renderRef.camera.quaternion);
-
-  //   _this_renderRef.scene.add(textMesh);
-
-  //   var mainLoop = async() => {
-  //     if (annimationFrames > 0) {
-  //       annimationFrames -= 1;
-  //       await wait(100);
-  //       requestAnimationFrame(mainLoop)
-  //     } else {
-  //       mesh.scale.x = 0.2;
-  //       mesh.scale.y = 0.2;
-  //       mesh.scale.z = 0.2;
-  //       _this_renderRef.scene.remove(textMesh);
-  //     }
-      
-  //     _this_renderRef.renderer.render(_this_renderRef.scene, _this_renderRef.camera)
-      
-  //     mesh.scale.x += 0.1
-  //     mesh.scale.y += 0.1
-  //     mesh.scale.z += 0.1
-  //   }
+  resizeRendererToDisplaySize =  () => {
+    if (this.renderRef.mount == null) {
+      return;
+    }
+    const _canvas = this.renderRef.renderer.domElement;
+    const _width = this.renderRef.mount.clientWidth;
+    const _height = this.renderRef.mount.clientHeight;
+    const _style_width = this.renderRef.mount.style.width;
+    const _style_height = this.renderRef.mount.style.height;
+    const needCanvasResize = _canvas.width !== _width || _canvas.height !== _height;
+    const needStyleResize = _canvas.style.width !== _style_width || _canvas.style.height !== _style_height;
     
-  //   mainLoop()
+    if (needCanvasResize) {
+      this.renderRef.renderer.setSize(_width, _height, false);
+    }
 
-  // }
-
-
+    if (needStyleResize) {
+      _canvas.style.width = _style_width;
+      _canvas.style.height = _style_height;
+    }
+    return needCanvasResize;
+  }
+  
   focusObjects(songIdMap) {
 
     this.particleRenders.forEach((song,id)=>{
@@ -167,12 +114,8 @@ class ThreeJsComponent extends Component {
 
   }
 
-  // onListPanelScroll(event){
-  //   console.log(event);
-  // }
-
   resetFocus(){
-    // console.log('reset focus');
+    //console.log('reset focus');
     this.particleRenders.forEach((song,id)=>{
       //song.visible = true;
       song.material.opacity = 1; 
@@ -187,6 +130,11 @@ class ThreeJsComponent extends Component {
     // this.renderRef.camera.position.x = 340;
     // this.renderRef.camera.position.y = 180;
     // this.renderRef.camera.position.z = 180;
+    // this.renderRef.controls = new OrbitControls(this.renderRef.camera, this.renderRef.renderer.domElement);
+    // this.renderRef.controls.zoomSpeed = 0.5;
+    this.renderRef.controls.target.set(50, 50, 50);
+    this.renderRef.controls.update();
+
     this.renderRef.camera.lookAt(new THREE.Vector3(50,50,50));
     this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
   }
@@ -330,44 +278,35 @@ class ThreeJsComponent extends Component {
     var label = this.addLabel(particle.trackData.name, song.position, particle.trackData.popularity/30, size*64);
     this.renderRef.scene.add(label);
     this.particleLabelRenders.set(particle.trackData.id, label);
-    
-    this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
+    // will render after batch finishes
+    // this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
   }
 
-  requestRenderIfNotRequested() {
-    let _this_renderRef = this.renderRef;
-    let _this_updateRenderer = this.updateRenderer(_this_renderRef);
-    return () => {
-      //console.log ("renderRequested", _this_renderRef.renderRequested);
-      if (!_this_renderRef.renderRequested) {
-        _this_renderRef.renderRequested = true;
-        requestAnimationFrame(_this_updateRenderer);
-      }
+  requestRenderIfNotRequested = () => {
+    //console.log ("renderRequested", this.renderRef.renderRequested);
+    if (!this.renderRef.renderRequested) {
+      this.renderRef.renderRequested = true;
+      const _this_updateRenderer = this.updateRenderer;
+      requestAnimationFrame(_this_updateRenderer);
     }
-    
   }
-  updateRenderer(
-    _this_renderRef
-    ) {
 
-    return ()=> {
-      // console.log(_this_renderRef.camera.position);
-      // console.log("rendered", _this_renderRequested);
-      _this_renderRef.renderRequested = false;
+  updateRenderer = ()=> {
+    //console.log(this.renderRef.camera.position);
+    // console.log("rendered", _this_renderRequested);
+    this.renderRef.renderRequested = false;
 
-      if (_this_renderRef.resizeRendererToDisplaySize(_this_renderRef.renderer,_this_renderRef.mount )) {
-        const canvas = _this_renderRef.renderer.domElement;
-        _this_renderRef.camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        _this_renderRef.camera.updateProjectionMatrix();
-    }
-    _this_renderRef.controls.update();
-  
-    _this_renderRef.renderer.render(_this_renderRef.scene, _this_renderRef.camera);
+    if (this.resizeRendererToDisplaySize(this.renderRef.renderer,this.renderRef.mount )) {
+      const canvas = this.renderRef.renderer.domElement;
+      this.renderRef.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      this.renderRef.camera.updateProjectionMatrix();
+  }
+  this.renderRef.controls.update();
 
-    }
+  this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
 
+  }
 
-}
   componentDidMount(){
     //handle login redirect
     const _particles = this.particles;
@@ -387,7 +326,7 @@ class ThreeJsComponent extends Component {
 
     const max_artist = 20;
     let _this = this;
-
+    const _this_renderRef = this.renderRef;
     //get top songs then artists
     getTopSongs(function(data_particles , hasNext){
       // console.log('top songs',data_particles, _particles.size, 'hasNext',hasNext);
@@ -418,6 +357,9 @@ class ThreeJsComponent extends Component {
           songBatch.push(item);
         } 
       })
+
+      _this_renderRef.renderer.render(_this_renderRef.scene, _this_renderRef.camera);
+
       if (songBatch.length > 0) {
         _dispatch(addSongs(songBatch));
       }
@@ -517,6 +459,8 @@ class ThreeJsComponent extends Component {
                     });
                 }
               });
+              _this_renderRef.renderer.render(_this_renderRef.scene, _this_renderRef.camera);
+
               if (songBatch.length > 0) {
                 _dispatch(addSongs(songBatch));
               }
@@ -553,13 +497,13 @@ class ThreeJsComponent extends Component {
     this.renderRef.controls.zoomSpeed = 0.5;
     this.renderRef.controls.target.set(50, 50, 50);
     this.renderRef.controls.update();
-
-    this.renderRef.controls.addEventListener('change', this.requestRenderIfNotRequested());
+    const _this_requestRenderIfNotRequested = this.requestRenderIfNotRequested;
+    this.renderRef.controls.addEventListener('change', _this_requestRenderIfNotRequested);
     this.renderRef.controls.enableDamping = true;
     this.renderRef.renderRequested = false;
 
     //this.updateRenderer(this.renderRef);
-    this.requestRenderIfNotRequested()();
+    this.requestRenderIfNotRequested();
     // console.log(this.renderRef.controls);
 
     var boxMesh = new THREE.Mesh(new THREE.BoxBufferGeometry(100, 100, 100));
@@ -648,7 +592,7 @@ class ThreeJsComponent extends Component {
     // this.renderRef.camera.position.z = 5;
 
     this.renderRef.renderer.render(this.renderRef.scene, this.renderRef.camera);
-    var _this_renderRef = this.renderRef;
+    // var _this_renderRef = this.renderRef;
     // var animate = function () {
     //   requestAnimationFrame( animate );
       
@@ -682,7 +626,6 @@ class ThreeJsComponent extends Component {
           <Grid item >
             <div className="listpanelcontainer"
             onMouseLeave={this.resetFocus}
-            // onScroll={this.onListPanelScroll}
             >
               <Grid container direction="column" spacing={0} style={{padding: 0}}>
                 <Grid item >
@@ -693,20 +636,12 @@ class ThreeJsComponent extends Component {
                 </Grid>
               </Grid>
             </div>
-            
-
-            {/* <ul className="listings" >
-              <li><ArtistList/></li>  
-              <li><SongList/></li>  
-            </ul> */}
           </Grid>
         </Grid>
-
       </div>
     )
   }
 }
-
 
 const mapStateToProps = (state) => {
   //console.log('highlight song:',state.focusSong, 'artist',state.focusArtist);
