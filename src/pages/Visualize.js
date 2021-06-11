@@ -88,10 +88,10 @@ class ThreeJsComponent extends Component {
       this.currentlyPlayingAudio.pause();
       
     }
-    this.renderRef.messagePanel.innerHTML = link;
+    // this.renderRef.messagePanel.innerHTML = link;
     this.currentlyPlayingAudio = new Audio(link);
     this.currentlyPlayingAudio.play();
-    console.log(link)
+    // console.log(link)
   }
 
   // distToCamera (position) {
@@ -321,7 +321,7 @@ class ThreeJsComponent extends Component {
     this.renderRef.scene.add(song);
     this.renderRef.controls.update();
   
-    var label = this.addLabel(particle.trackData.name, song.position, particle.trackData.popularity/30, 100);
+    var label = this.addLabel(particle.trackData.name, song.position, particle.trackData.popularity/30, 60);
     label.scale.x = label.userData.prefScaleW;
     label.scale.y = label.userData.prefScaleH;
     let dist = label.position.distanceTo(this.renderRef.camera.position);
@@ -693,10 +693,10 @@ class ThreeJsComponent extends Component {
             >
 
             </div>
-            <div className='messagePanel' 
+            {/* <div className='messagePanel' 
             ref={messagePanel => { this.renderRef.messagePanel = messagePanel}}>
               fdsflsjdf
-            </div>
+            </div> */}
           </Grid>
           <Grid item >
             <div className="listpanelcontainer"
