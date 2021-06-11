@@ -1,3 +1,12 @@
+html,body {
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  /* position: fixed;
+  overflow: hidden; */
+}
+
 html, body, #app, #app>div {
   height: 100%;
   background-color: #000;
@@ -18,6 +27,39 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+a, u {
+  text-decoration: none;
+}
+
+div.messagePanel {
+  position:fixed;
+  bottom: 20px;
+  left: 33px;
+  color: white;
+  font-size: 14px;
+}
+
+p.about_text {
+  color: white;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+h1.about_text {
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 17px;
+}
+
+div.about_text {
+  width: 600px;
+  padding-top: 140px;
+}
+
+div.app_header {
+  padding: 33px
 }
 
 h1.app_header {
@@ -55,52 +97,11 @@ div.welcomePopup {
 }
 
 div.welcome {
-  height: 400px;
+  height: 460px;
   margin: auto;
   padding: 0 0 100px 0;
 }
 
-@media screen and (min-width: 600px) {
-  h1.welcome {
-    font-size: 96px;
-    line-height: 100px;
-  }
-  div.welcome {
-    width: 578px;
-  }
-  #menu_links a{
-    padding-inline: 30px 0px;
-  }
-}
-
-@media screen and (max-width: 600px) {
-  h1.welcome {
-    font-size: 64px;
-    line-height: 68px;
-  }
-  div.welcome {
-    width: 400px;
-  }
-  #menu_links a{
-    padding-inline: 0px 30px;
-  }
-}
-/* @media screen and (max-width: 500px) {
-  h1.welcome {
-    font-size: 48px;
-    line-height: 52px;
-  }
-  div.welcome {
-    width: 300px;
-  }
-
-  #menu_links{
-    text-align: start;
-  }
-  #menu_links a{
-    padding-inline: 0px 30px;
-  }
-} */
 
 h1.welcome {
   font-weight: bold;
@@ -120,24 +121,7 @@ div.dark_mode{
   height: 100vh;
   background-color: #000;
   flex-grow: 1;
-}
-
-
-
-@media screen and (min-width: 600px) {
-  div.visualView {
-    height: calc(100vw - 320px);
-    width: calc(100vw - 320px);
-    max-height: calc(100vh - 110px);
-  }
-}
-
-@media screen and (max-width: 600px) {
-  div.visualView {
-    height: calc(100vw - 20px);
-    width: calc(100vw - 20px);
-    max-height: calc(100vh - 110px);
-  }
+  position: fixed;
 }
 
 
@@ -155,26 +139,33 @@ ul.listings, li.listings {
   list-style-type: none;
   list-style-position: inside;
   padding-left: 0;
-  width: 300px;
+  width: 260px;
   margin-block-start: 0;
+}
+
+ul.listings li div:hover {
+  background-color: #111;
 }
 div.listpanelcontainer {
   width: 300px;
-  height: calc(100vh - 102px);
+  height: calc(100vh - 104px );
+  overflow: scroll;
 }
 div.listingpanel {
   margin-bottom: 20px;
 }
 
 div.listings_min {
-  height: calc(30vh - 140px);
-  overflow: scroll;
+  height: calc(50vh - 140px);
+  /* width: 300px; */
+  overflow: hidden;
   padding: 0px 20px;
 }
 
 div.listings_max {
-  height: calc(70vh - 140px);
-  overflow: scroll;
+  /* height: calc(70vh - 140px); */
+  /* width: 300px; */
+  overflow: hidden;
   padding: 0px 20px;
 }
 
@@ -207,34 +198,332 @@ h2.listitem {
   margin-block-end: 0px;
 }
 
-div.listSeeMore {
+div.listToggle {
+  width: 100%;
   text-align: center;
   margin-top: -40px;
   position:relative;
   color: #FFF;
 }
-
-div.listSeeMoreMask {
+div.listToggleFixed {
   width: 300px;
+  text-align: center;
+  /* margin-top: -40px; */
+  position:fixed;
+  color: #FFF;
+  top: calc( 100% - 83px );
+}
+div.listToggleMask {
+  width: 100%;
   height: 40px;
   background: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0));
   position:relative;
 }
 
-div.disableSeeMoreButton { 
-  pointer-events: none; 
-  color: #666;
+div.listToggleButton { 
+  /* pointer-events: none;  */
+  background-color: black;
+  color: #FFF;
 }
 
-div.listSeeMoreButton:hover {
+div.listToggleButton:hover {
   background-color: #111;
   cursor:pointer;
 }
 
-span.listSeeMore {
+span.listToggle {
   font-size: 10px;
   font-weight: bold;
   margin-top: -6px;
   display: inline-block;
   /* color: white; */
+}
+
+
+
+
+/* modify based on screen size */
+@media screen and (orientation: landscape) 
+   and (max-height: 320px) {
+    div.about_text {
+      padding-top: 20px;
+      width: calc(100vw - 80px);
+    }
+    div.app_header {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+}
+@media screen and (orientation: portrait) 
+  and (max-width: 320px) {
+    div.about_text {
+      padding-top: 40px;
+      width: calc(100vw - 80px);
+    }
+    div.app_header {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+}
+
+@media screen and (orientation: landscape)
+   and (min-height: 321px) {
+    div.about_text {
+      padding-top: 40px;
+      width: calc(100vw - 100px);
+    }
+    div.app_header {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+
+}
+
+
+@media screen and (orientation: portrait)
+   and (min-width: 320px) {
+  div.about_text {
+    padding-top: 40px;
+    width: calc(100vw - 80px);
+  }
+  div.app_header {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+
+@media screen and (min-width: 560px) and (orientation: landscape){
+  h1.welcome {
+    font-size: 96px;
+    line-height: 100px;
+  }
+  div.welcome {
+    width: 578px;
+  }
+  #menu_links a{
+    padding-inline: 30px 0px;
+  }
+  div.visualView {
+    height: calc(100vw - 320px);
+    width: calc(100vw - 320px);
+    max-height: calc(100vh - 110px);
+  }
+}
+
+@media screen and (max-width: 560px) and (orientation: landscape) {
+  div.app_header {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  div.dark_mode{
+    flex-grow: 1;
+    position: fixed;
+  }
+
+  h1.welcome {
+    font-size: 64px;
+    line-height: 68px;
+  }
+  div.welcome {
+    width: 400px;
+  }
+  
+  #menu_links a{
+    padding-inline: 0px 30px;
+  }
+
+  div.listpanelcontainer {
+    width: 100vw;
+    height: calc(100vh - 104px  - 48px);
+    overflow: scroll;
+  }
+  div.listToggleFixed {
+    width: 100vw;
+  }
+  div.visualView {
+    height: calc(100vw - 20px);
+    width: calc(100vw - 0px);
+    max-height: calc(50vh - 110px);
+    margin:0px;
+  }
+}
+@media screen and (max-width: 320px)  and (orientation: landscape) {
+  div.app_header {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  div.dark_mode{
+    flex-grow: 1;
+    position: fixed;
+  }
+  h1.app_header {
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 16px;
+    margin: 0px 0px 4px 0px
+  }
+  p.about_text {
+    width: 240px;
+    padding-top: 40px;
+  }
+
+  #menu_links a{
+    font-size: 10px;
+    line-height: 14px;
+  }
+  
+  div.listpanelcontainer {
+    width: 100vw;
+    height: calc(100vh - 104px - 48px);
+    overflow: scroll;
+  }
+  div.listToggleFixed {
+    width: 100vw;
+  }
+  div.visualView {
+    height: calc(100vw - 20px);
+    width: calc(100vw - 0px);
+    max-height: calc(50vh - 110px);
+    margin:0px;
+  }
+  h1.welcome {
+    font-size: 32px;
+    line-height: 48px;
+  }
+  div.welcome {
+    width: 300px;
+  }
+
+  #menu_links{
+    text-align: start;
+  }
+  #menu_links a{
+    padding-inline: 0px 24px;
+  }
+}
+
+
+
+
+
+
+
+@media screen and (min-width: 560px) and (orientation: portrait){
+  h1.welcome {
+    font-size: 96px;
+    line-height: 100px;
+  }
+  div.welcome {
+    width: 578px;
+  }
+  #menu_links a{
+    padding-inline: 30px 0px;
+  }
+  div.visualView {
+    height: calc(100vh - 110px);
+    width: calc(100vw - 320px);
+    max-height: calc(100vh - 110px);
+  }
+}
+
+@media screen and (max-width: 560px) and (orientation: portrait) {
+  div.app_header {
+    padding-left: 32px;
+    padding-right: 32px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  h1.app_header {
+    font-weight: bold;
+    font-size: 20px;
+    line-height: 20px;
+    margin: 0px 0px 4px 0px
+  }
+  div.dark_mode{
+    flex-grow: 1;
+    position: fixed;
+  }
+
+  h1.welcome {
+    font-size: 64px;
+    line-height: 68px;
+  }
+  div.welcome {
+    width: 90vw;
+  }
+  
+  #menu_links a{
+    padding-inline: 0px 30px;
+  }
+
+  div.listpanelcontainer {
+    width: 100vw;
+    height: calc((100vh / 3 * 2) - 104px - 48px);
+    overflow: scroll;
+  }
+  div.listToggleFixed {
+    width: 100vw;
+  }
+  div.visualView {
+    height: calc(100vh / 3);
+    width: calc(100vw - 0px);
+    /* max-height: calc(50vh - 110px); */
+    margin:0px;
+  }
+}
+@media screen and (max-width: 320px)  and (orientation: portrait) {
+  div.app_header {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  div.dark_mode{
+    flex-grow: 1;
+    position: fixed;
+  }
+  h1.app_header {
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 16px;
+    margin: 0px 0px 4px 0px
+  }
+  p.about_text {
+    width: 240px;
+    padding-top: 40px;
+  }
+
+  #menu_links a{
+    font-size: 10px;
+    line-height: 14px;
+  }
+  
+  div.listpanelcontainer {
+    width: 100vw;
+    height: calc((100vh / 3 * 2) - 104px - 48px );
+    overflow: scroll;
+  }
+  div.listToggleFixed {
+    width: 100vw;
+  }
+  div.visualView {
+    height: calc(100vw - 20px);
+    width: calc(100vw - 0px);
+    max-height: calc(50vh - 110px);
+    margin:0px;
+  }
+  h1.welcome {
+    font-size: 32px;
+    line-height: 48px;
+  }
+  div.welcome {
+    width: 90vw;
+  }
+
+  #menu_links{
+    text-align: start;
+  }
+  #menu_links a{
+    padding-inline: 0px 24px;
+  }
 }

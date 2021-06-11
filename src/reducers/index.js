@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 import focusSong from './focusSong'
 import focusArtist from './focusArtist'
-import expendList from './expendList'
+import reportListToggleStatus from './reportListToggleStatus'
 import artists from './artists'
 import songs from './songs'
 
@@ -9,7 +9,7 @@ import songs from './songs'
 export default combineReducers({
   focusSong,
   focusArtist,
-  expendList,
+  reportListToggleStatus,
   artists,
   songs
 })

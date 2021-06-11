@@ -4,9 +4,10 @@ import Avatar from '@material-ui/core/Avatar';
 import Grid from "@material-ui/core/Grid";
 
 
-const Artist = ({ id, name, thumbnail_url, genre, songs, onHoverToFocusArtist }) => (
+const Artist = ({ id, name, thumbnail_url, genre, onHoverToFocusArtist,onLeaveToUnFocusArtist }) => (
   <li
   onMouseEnter={onHoverToFocusArtist}
+  onMouseLeave={onLeaveToUnFocusArtist}
   >
     <Grid container spacing={0} wrap='nowrap' style={{padding: 0}}>
       <Grid item style={{padding: '7px 7px 7px 0px'}}>
@@ -24,8 +25,9 @@ Artist.propTypes = {
   name: PropTypes.string.isRequired,
   thumbnail_url: PropTypes.string.isRequired,
   genre: PropTypes.string.isRequired,
-  songs: PropTypes.array.isRequired,
-  onHoverToFocusArtist: PropTypes.func.isRequired
+  // songs: PropTypes.array.isRequired,
+  onHoverToFocusArtist: PropTypes.func.isRequired,
+  onLeaveToUnFocusArtist: PropTypes.func.isRequired
 }
 
 export default Artist

@@ -26,9 +26,9 @@ export const addPlaylists = playlists => ({
   playlists
 })
 
-export const expendList = expendList => ({
-  type: 'TOGGLE_LIST',
-  expendList
+export const reportListToggleStatus = (list,status) => ({
+  type: 'LIST_STATUS',
+  reportListToggleStatus:{list:list,status:status}
 })
 
 export const addArtists = newArtists => ({

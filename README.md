@@ -6,18 +6,20 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### `yarn start`
+### start developement mode with .env.development
+`yarn run start`
 
+### with npm
 HOST=localhost PORT=3000 npm start
 
 ## Build docker image
 
-- for production
+- deployment to production
 ```shell
 # build image
 docker build -f Dockerfile.prod  -t musicscape:prod .
 # run container
-docker run -it --rm  -p 8080:8080 musicscape:prod
+# docker run -it --rm  -p 8080:8080 musicscape:prod
 # deploy docker image
 docker tag musicscape:prod gcr.io/brycedemos/musicscape:prod
 docker push gcr.io/brycedemos/musicscape:prod
@@ -27,6 +29,8 @@ gcloud run deploy musicscape \
 --platform=managed \
 --region=us-west1 \
 --project=brycedemos
+
+
 ```
 
 Runs the app in the development mode.\
