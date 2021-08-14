@@ -13,8 +13,12 @@ In the project directory, you can run:
 HOST=localhost PORT=3000 npm start
 
 ## Build docker image
-
-- deployment to production
+Configure gcloud
+```shell
+gcloud auth login
+gcloud auth configure-docker
+```
+deployment to production
 ```shell
 # build image
 docker build -f Dockerfile.prod  -t musicscape:prod .

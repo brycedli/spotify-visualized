@@ -247,7 +247,7 @@ span.listToggle {
    and (max-height: 320px) {
     div.about_text {
       padding-top: 20px;
-      width: calc(100vw - 80px);
+      width: calc(50vw);
     }
     div.app_header {
       padding-top: 24px;
@@ -270,7 +270,7 @@ span.listToggle {
    and (min-height: 321px) {
     div.about_text {
       padding-top: 40px;
-      width: calc(100vw - 100px);
+      width: calc(50vw);
     }
     div.app_header {
       padding-top: 24px;
@@ -364,9 +364,12 @@ span.listToggle {
     line-height: 16px;
     margin: 0px 0px 4px 0px
   }
-  p.about_text {
+
+  p.about_text, a.about_text, a.about_text:link, a.about_text:visited, a.about_text:focus, a.about_text:hover, a.about_text:active{
     width: 240px;
     padding-top: 40px;
+    color:white !important;
+    text-decoration: underline;
   }
 
   #menu_links a{

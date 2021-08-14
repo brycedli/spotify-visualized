@@ -22,7 +22,13 @@ class About extends Component {
             <div className="about_text">
                 <h1 className="about_text">About Music Scape Project</h1>
                 <p className="about_text">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.laborum.Lorem
+                Musicscape is a project that visualizes your music tastes according to how Spotify internally understands your favorite songs. Individual songs in this visualization are positioned by abstract attributes such as valence (mood), acousticness (the amount of acoustic  vs. synthetic instruments), and energy. You can also explore your top tastes in artists and songs by hovering over them.                  
+                </p>
+                <p className="about_text">
+                Musicscape is the latest iteration of Spotify Visualized hosted on brycedemos.com.
+                </p>
+                <p className="about_text">
+                  Questions? Suggestions? Reach me at <a className="about_text" style={{color:'white',textDecoration:'underline'}} href="https://www.instagram.com/designbybryce/">@designbybryce</a>
                 </p>
             </div>
           </Grid>
