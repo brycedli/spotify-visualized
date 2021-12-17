@@ -1,12 +1,37 @@
+
+
 html,body {
   width: 100%;
   height: 100%;
   margin: 0px;
   padding: 0px;
+  overflow: hidden;
   /* position: fixed;
   overflow: hidden; */
+  scrollbar-color: dark;
+
+}
+/* width */
+::-webkit-scrollbar {
+  width: auto;
 }
 
+/* Track */
+::-webkit-scrollbar-track {
+  /* box-shadow: inset 0 0 5px grey;  */
+  border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: black; 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: black; 
+}
 html, body, #app, #app>div {
   height: 100%;
   background-color: #000;
@@ -48,7 +73,7 @@ p.about_text {
 
 h1.about_text {
   color: white;
-  font-size: 14px;
+  font-size: 50px;
   font-weight: bold;
   line-height: 17px;
 }
@@ -270,7 +295,7 @@ span.listToggle {
    and (min-height: 321px) {
     div.about_text {
       padding-top: 40px;
-      width: calc(50vw);
+      width: calc(500px);
     }
     div.app_header {
       padding-top: 24px;

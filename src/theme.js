@@ -4,7 +4,7 @@ import {grey, lightGreen,purple} from "@material-ui/core/colors";
 const theme = createMuiTheme({
   typography: {
     fontFamily: [
-      '-apple-system',
+      '"-apple-system"',
       'BlinkMacSystemFont',
       '"Segoe UI"',
       'Roboto',

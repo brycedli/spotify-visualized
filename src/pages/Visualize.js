@@ -480,21 +480,27 @@ class ThreeJsComponent extends Component {
             //console.log("artists from list:" , artistIds);
             const artistBatch = [];
             artistdata.forEach(a=>{
-              if (a.id == null || a.id == '') {
+              if (a.id == null || a.id == '' || a.images.length == 0) {
+                //TODO: Currently skips artists without images, will add placeholder 
                 return;
               }
-              const item = {id:a.id,name:a.name,thumbnail_url:a.images[2].url,genre:a.genres.join(', ')};
-              if (!artistToDisplay.has(a.id)) {
-                if (_artists.has(a.id)) {
-                  const songs = Array.from(_artists.get(a.id).get('songs').keys());
-                  item['songs'] = songs;
-                } else {
-                  item['songs'] = [];
-                }
-                artistToDisplay.set(a.id,item);
-                artistBatch.push(item);
-                // _dispatch(addArtists(item));
-              } 
+              try {
+                const item = {id:a.id,name:a.name,thumbnail_url:a.images[a.images.length - 1].url,genre:a.genres.join(', ')};
+                if (!artistToDisplay.has(a.id)) {
+                  if (_artists.has(a.id)) {
+                    const songs = Array.from(_artists.get(a.id).get('songs').keys());
+                    item['songs'] = songs;
+                  } else {
+                    item['songs'] = [];
+                  }
+                  artistToDisplay.set(a.id,item);
+                  artistBatch.push(item);
+                  // _dispatch(addArtists(item));
+                } 
+              } catch (e) {
+              
+              }
+              
   
             });
             _dispatch(addArtists(artistBatch));
